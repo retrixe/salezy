@@ -5,6 +5,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 import xyz.retrixe.salezy.ui.screens.LoginScreen
@@ -19,12 +20,15 @@ enum class Screens {
 @OptIn(ExperimentalMaterial3Api::class)
 fun App() {
     var screen by remember { mutableStateOf(Screens.LOGIN) }
+    var topBar by remember { mutableStateOf<String?>(null) }
 
     AppTheme {
-        Scaffold(topBar = { TopAppBar(title = { Text("Salezy") }) }) { innerPadding ->
+        Scaffold(topBar = {
+            if (topBar != null) TopAppBar(title = { Text(topBar!!) })
+        }) { innerPadding ->
             Box(modifier = Modifier.padding(innerPadding)) {
                 when (screen) {
-                    Screens.LOGIN -> LoginScreen()
+                    Screens.LOGIN -> LoginScreen(setTopBar = { topBar = it })
                 }
             }
         }
@@ -43,7 +47,7 @@ fun main() = application {
         title = "Salezy",
         state = state,
         resizable = true,
-        // icon = painterResource("drawable/logo.png"),
+        icon = painterResource("drawable/logo.png"),
         onCloseRequest = ::exitApplication
     ) {
         App()
