@@ -10,4 +10,4 @@ pluginManagement {
     }
 }
 
-rootProject.name = "salezy-app"
+rootProject.name = "salezy"

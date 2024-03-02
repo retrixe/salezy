@@ -5,9 +5,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.painterResource
+import xyz.retrixe.salezy.generated.resources.Res
+import xyz.retrixe.salezy.generated.resources.logo
 import xyz.retrixe.salezy.ui.screens.LoginScreen
 import xyz.retrixe.salezy.ui.theme.AppTheme
 
@@ -35,6 +38,7 @@ fun App() {
     }
 }
 
+@OptIn(ExperimentalResourceApi::class)
 fun main() = application {
     val state = rememberWindowState(
         position = WindowPosition.Aligned(Alignment.Center),
@@ -47,7 +51,7 @@ fun main() = application {
         title = "Salezy",
         state = state,
         resizable = true,
-        icon = painterResource("drawable/logo.png"),
+        icon = painterResource(Res.drawable.logo),
         onCloseRequest = ::exitApplication
     ) {
         App()
