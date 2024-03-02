@@ -1,16 +1,20 @@
-import { readFile } from 'node:fs/promises'
+import type postgres from 'postgres'
+
+import parsedConfig from '../config.json' with { type: 'json' }
 
 interface Config {
   port: number
   jwtSecret: string
+  postgresConf: postgres.Options<any>
 }
 
-const config: Config = JSON.parse(
-  await readFile(new URL('../config.json', import.meta.url), {
-    encoding: 'utf-8',
-  }),
-)
+const defaultConfig: Omit<Config, 'jwtSecret'> = {
+  port: 3000,
+  postgresConf: { database: 'salezy' },
+}
 
-export const { port = 3000, jwtSecret } = config
+const config: Config = Object.assign(defaultConfig, parsedConfig)
 
-export default Object.assign({ port }, config)
+export const { port, jwtSecret, postgresConf } = config
+
+export default config

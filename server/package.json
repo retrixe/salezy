@@ -9,7 +9,7 @@
   },
   "packageManager": "yarn@4.1.0",
   "scripts": {
-    "lint": "tsc && eslint .",
+    "lint": "tsc --noEmit && eslint .",
     "start": "tsc && node ."
   },
   "repository": {
@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/retrixe/salezy#readme",
   "dependencies": {
+    "argon2": "^0.40.1",
     "fastify": "^4.26.0",
     "jsonwebtoken": "^9.0.2",
     "postgres": "^3.4.3"
