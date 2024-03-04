@@ -11,6 +11,10 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import xyz.retrixe.salezy.generated.resources.Res
 import xyz.retrixe.salezy.generated.resources.logo
+import xyz.retrixe.salezy.state.ConfigurationState
+import xyz.retrixe.salezy.state.defaultConfiguration
+import xyz.retrixe.salezy.state.loadConfiguration
+import xyz.retrixe.salezy.state.saveConfiguration
 import xyz.retrixe.salezy.ui.screens.LoginScreen
 import xyz.retrixe.salezy.ui.theme.AppTheme
 
@@ -23,18 +27,33 @@ enum class Screens {
 @OptIn(ExperimentalMaterial3Api::class)
 fun App() {
     var screen by remember { mutableStateOf(Screens.LOGIN) }
-    var topBar by remember { mutableStateOf<String?>(null) }
+    var topBar by remember { mutableStateOf<Pair<String, (@Composable () -> Unit)?>?>(null) }
+    var configuration by remember { mutableStateOf(defaultConfiguration) }
+
+    LaunchedEffect(configuration) {
+        if (configuration === defaultConfiguration)
+            configuration = loadConfiguration()
+        else saveConfiguration(configuration)
+    }
 
     AppTheme {
         Scaffold(topBar = {
-            if (topBar != null) TopAppBar(title = { Text(topBar!!) })
-        }) { innerPadding ->
-            Box(modifier = Modifier.padding(innerPadding)) {
+            if (topBar != null) TopAppBar(
+                title = { Text(topBar!!.first) },
+                actions = { topBar!!.second?.invoke() }
+            )
+        }) { innerPadding -> Box(modifier = Modifier.padding(innerPadding)) {
+            CompositionLocalProvider(ConfigurationState provides configuration) {
                 when (screen) {
-                    Screens.LOGIN -> LoginScreen(setTopBar = { topBar = it })
+                    Screens.LOGIN -> LoginScreen(
+                        setTopBar = { title, action -> topBar = Pair(title, action) },
+                        overrideInstanceUrl = {
+                            configuration = configuration.copy(instanceUrl = it)
+                        }
+                    )
                 }
             }
-        }
+        } }
     }
 }
 
