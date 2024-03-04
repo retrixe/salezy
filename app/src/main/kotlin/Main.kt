@@ -9,17 +9,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
+import xyz.retrixe.salezy.api.Api
 import xyz.retrixe.salezy.generated.resources.Res
 import xyz.retrixe.salezy.generated.resources.logo
 import xyz.retrixe.salezy.state.ConfigurationState
 import xyz.retrixe.salezy.state.defaultConfiguration
 import xyz.retrixe.salezy.state.loadConfiguration
 import xyz.retrixe.salezy.state.saveConfiguration
+import xyz.retrixe.salezy.ui.screens.DashboardScreen
 import xyz.retrixe.salezy.ui.screens.LoginScreen
 import xyz.retrixe.salezy.ui.theme.AppTheme
 
 enum class Screens {
-    LOGIN
+    LOGIN,
+    DASHBOARD
 }
 
 @Composable
@@ -35,6 +38,7 @@ fun App() {
             configuration = loadConfiguration()
         else saveConfiguration(configuration)
     }
+    SideEffect { Api.instance.url = configuration.instanceUrl }
 
     AppTheme {
         Scaffold(topBar = {
@@ -49,8 +53,10 @@ fun App() {
                         setTopBar = { title, action -> topBar = Pair(title, action) },
                         overrideInstanceUrl = {
                             configuration = configuration.copy(instanceUrl = it)
-                        }
+                        },
+                        setScreen = { screen = it }
                     )
+                    Screens.DASHBOARD -> DashboardScreen(setTopBar = { topBar = it })
                 }
             }
         } }

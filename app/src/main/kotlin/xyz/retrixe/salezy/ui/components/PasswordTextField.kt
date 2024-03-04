@@ -17,14 +17,20 @@ import androidx.compose.ui.text.input.VisualTransformation
 fun PasswordTextField(
     value: String,
     onValueChange: (String) -> Unit,
+    enabled: Boolean = true,
     keyboardOptions: KeyboardOptions,
     keyboardActions: KeyboardActions,
-    label: @Composable (() -> Unit)?,
+    label: @Composable (() -> Unit)? = null,
+    supportingText: @Composable (() -> Unit)? = null,
+    isError: Boolean = false,
     modifier: Modifier,
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
     OutlinedTextField(value = value, onValueChange = onValueChange,
+        enabled = enabled,
         label = label,
+        supportingText = supportingText,
+        isError = isError,
         singleLine = true,
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,

@@ -1,5 +1,6 @@
 package xyz.retrixe.salezy.ui.screens
 
+import Screens
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,11 +26,10 @@ import xyz.retrixe.salezy.state.defaultConfiguration
 import xyz.retrixe.salezy.ui.components.PasswordTextField
 import kotlin.system.exitProcess
 
-fun login() = println("Hi!")
-
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun LoginScreen(
+    setScreen: (Screens) -> Unit,
     setTopBar: (String, (@Composable () -> Unit)?) -> Unit,
     overrideInstanceUrl: (String) -> Unit
 ) {
@@ -38,6 +38,7 @@ fun LoginScreen(
     val (passwordFocus, loginButtonFocus) = remember { FocusRequester.createRefs() }
     var dialogOpen by remember { mutableStateOf(false) }
     var dialogValue by remember { mutableStateOf("") }
+    var loadingOrError by remember { mutableStateOf<String?>("") }
 
     val instanceUrl = ConfigurationState.current.instanceUrl
     setTopBar("Salezy ❯ Login") {
@@ -82,7 +83,7 @@ fun LoginScreen(
                         ) {
                             Text("Reset to Default")
                         }
-                        TextButton(onClick = onSubmit, modifier = Modifier.padding(8.dp)) {
+                        TextButton(onClick = { onSubmit() }, modifier = Modifier.padding(8.dp)) {
                             Text("Save")
                         }
                     }
@@ -92,13 +93,19 @@ fun LoginScreen(
     }
 
     val width = 320.dp
+    fun login() {
+        loadingOrError = null // FIXME
+        setScreen(Screens.DASHBOARD)
+    }
     Column(Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         OutlinedTextField(value = username, onValueChange = { username = it },
+            enabled = loadingOrError != null,
             label = { Text("Username") },
             singleLine = true,
+            isError = loadingOrError?.isNotEmpty() == true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             keyboardActions = KeyboardActions(onNext = { passwordFocus.requestFocus() }),
             modifier = Modifier.width(width)
@@ -113,7 +120,10 @@ fun LoginScreen(
         Spacer(Modifier.height(8.dp))
 
         PasswordTextField(value = password, onValueChange = { password = it },
+            enabled = loadingOrError != null,
             label = { Text("Password") },
+            supportingText = { if (loadingOrError?.isNotEmpty() == true) Text(loadingOrError!!) },
+            isError = loadingOrError?.isNotEmpty() == true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             keyboardActions = KeyboardActions(onDone = { login() }),
             modifier = Modifier.width(width)
@@ -132,7 +142,8 @@ fun LoginScreen(
             Button(onClick = { exitProcess(0) }) { Text("Quit") }
 
             Button(modifier = Modifier.focusRequester(loginButtonFocus),
-                onClick = { login() }) { Text("Login") }
+                onClick = { login() },
+                enabled = loadingOrError != null) { Text("Login") }
         }
     }
 }
