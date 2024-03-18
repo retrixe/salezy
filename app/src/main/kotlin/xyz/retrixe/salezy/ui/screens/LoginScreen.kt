@@ -41,7 +41,7 @@ fun LoginScreen(
     var loadingOrError by remember { mutableStateOf<String?>("") }
 
     val instanceUrl = ConfigurationState.current.instanceUrl
-    setTopBar("Salezy ❯ Login") {
+    setTopBar("Salezy ❯ Login") { // TODO (low priority): This interferes with transitions.
         // FIXME PlainTooltipBox
         IconButton(onClick = { dialogOpen = true; dialogValue = instanceUrl }) {
             Icon(imageVector = Icons.Filled.Settings, "Settings")

@@ -1,3 +1,4 @@
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -48,7 +49,7 @@ fun App() {
             )
         }) { innerPadding -> Box(modifier = Modifier.padding(innerPadding)) {
             CompositionLocalProvider(ConfigurationState provides configuration) {
-                when (screen) {
+                AnimatedContent(targetState = screen) { targetState -> when (targetState) {
                     Screens.LOGIN -> LoginScreen(
                         setTopBar = { title, action -> topBar = Pair(title, action) },
                         overrideInstanceUrl = {
@@ -56,8 +57,11 @@ fun App() {
                         },
                         setScreen = { screen = it }
                     )
-                    Screens.DASHBOARD -> DashboardScreen(setTopBar = { topBar = it })
-                }
+                    Screens.DASHBOARD -> DashboardScreen(
+                        setTopBar = { topBar = it },
+                        logout = { screen = Screens.LOGIN } // FIXME
+                    )
+                } }
             }
         } }
     }

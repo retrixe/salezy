@@ -1,5 +1,6 @@
 package xyz.retrixe.salezy.ui.screens
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
@@ -7,30 +8,37 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import xyz.retrixe.salezy.ui.screens.dashboard.InventoryScreen
+
+enum class DashboardScreens(val title: String, val icon: ImageVector) {
+    POINT_OF_SALE("Point Of Sale", Icons.Filled.PointOfSale),
+    INVENTORY("Inventory", Icons.Filled.Inventory),
+    CUSTOMERS("Customers", Icons.Filled.People),
+    GIFT_CARDS("Gift Cards", Icons.Filled.CardGiftcard),
+    SETTINGS("Settings", Icons.Filled.Settings),
+}
 
 @Composable
-fun DashboardScreen(setTopBar: (Pair<String, (@Composable () -> Unit)>?) -> Unit) {
+fun DashboardScreen(
+    logout: () -> Unit,
+    setTopBar: (Pair<String, (@Composable () -> Unit)>?) -> Unit
+) {
     setTopBar(null)
 
-    var selectedItem by remember { mutableIntStateOf(0) }
-    val items = listOf(
-        Pair("Point Of Sale", Icons.Filled.PointOfSale),
-        Pair("Inventory", Icons.Filled.Inventory),
-        Pair("Customers", Icons.Filled.People),
-        Pair("Gift Cards", Icons.Filled.CardGiftcard),
-        Pair("Settings", Icons.Filled.Settings),
-    )
+    // FIXME default to POINT_OF_SALE
+    var screen by remember { mutableStateOf(DashboardScreens.INVENTORY) }
 
-    // FIXME improve padding between items, add rounded background
     Row(Modifier.fillMaxSize()) {
         NavigationRail(Modifier.padding(8.dp)) {
-            items.forEachIndexed { index, item ->
+            DashboardScreens.entries.forEach { item ->
                 NavigationRailItem(
-                    icon = { Icon(item.second, contentDescription = item.first) },
-                    label = { Text(item.first) },
-                    selected = selectedItem == index,
-                    onClick = { selectedItem = index }
+                    modifier = Modifier.padding(4.dp),
+                    icon = { Icon(item.icon, contentDescription = item.title) },
+                    label = { Text(item.title) },
+                    selected = screen == item,
+                    onClick = { screen = item }
                 )
             }
             Column(verticalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxHeight()) {
@@ -39,9 +47,18 @@ fun DashboardScreen(setTopBar: (Pair<String, (@Composable () -> Unit)>?) -> Unit
                     icon = { Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Logout") },
                     label = { Text("Logout") },
                     selected = false,
-                    onClick = {}
+                    onClick = { logout() }
                 )
             }
         }
+        VerticalDivider()
+        AnimatedContent(targetState = screen) { targetState -> when (targetState) {
+            // DashboardScreens.POINT_OF_SALE -> {}
+            DashboardScreens.INVENTORY -> InventoryScreen()
+            // DashboardScreens.CUSTOMERS -> {}
+            // DashboardScreens.GIFT_CARDS -> {}
+            // DashboardScreens.SETTINGS -> {}
+            else -> { /* FIXME */ }
+        } }
     }
 }
