@@ -6,7 +6,7 @@ const server = fastify({ logger: true })
 
 server.get('/', async (request, reply) => ({ hello: 'world' }))
 
-server.get('/login', loginHandler)
+server.post('/login', loginHandler)
 
 try {
   await server.listen({ port: config.port })
