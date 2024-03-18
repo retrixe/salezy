@@ -21,6 +21,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import kotlinx.coroutines.launch
+import xyz.retrixe.salezy.api.Api
 import xyz.retrixe.salezy.state.ConfigurationState
 import xyz.retrixe.salezy.state.defaultConfiguration
 import xyz.retrixe.salezy.ui.components.PasswordTextField
@@ -40,11 +42,23 @@ fun LoginScreen(
     var dialogValue by remember { mutableStateOf("") }
     var loadingOrError by remember { mutableStateOf<String?>("") }
 
+    val scope = rememberCoroutineScope()
+    fun login() = scope.launch {
+        loadingOrError = null
+        try {
+            Api.instance.token = Api.instance.login(username, password)
+            setScreen(Screens.DASHBOARD)
+            loadingOrError = ""
+        } catch (e: Exception) { loadingOrError = e.message }
+    }
+
     val instanceUrl = ConfigurationState.current.instanceUrl
-    setTopBar("Salezy ❯ Login") { // TODO (low priority): This interferes with transitions.
-        // FIXME PlainTooltipBox
-        IconButton(onClick = { dialogOpen = true; dialogValue = instanceUrl }) {
-            Icon(imageVector = Icons.Filled.Settings, "Settings")
+    LaunchedEffect(instanceUrl) {
+        setTopBar("Salezy ❯ Login") { // TODO (low priority): This interferes with transitions.
+            // TODO (low priority): PlainTooltipBox
+            IconButton(onClick = { dialogOpen = true; dialogValue = instanceUrl }) {
+                Icon(imageVector = Icons.Filled.Settings, "Settings")
+            }
         }
     }
 
@@ -93,10 +107,6 @@ fun LoginScreen(
     }
 
     val width = 320.dp
-    fun login() {
-        loadingOrError = null // FIXME
-        setScreen(Screens.DASHBOARD)
-    }
     Column(Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center

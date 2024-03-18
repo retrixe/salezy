@@ -59,7 +59,7 @@ fun App() {
                     )
                     Screens.DASHBOARD -> DashboardScreen(
                         setTopBar = { topBar = it },
-                        logout = { screen = Screens.LOGIN } // FIXME
+                        logout = { Api.instance.token = ""; screen = Screens.LOGIN }
                     )
                 } }
             }
