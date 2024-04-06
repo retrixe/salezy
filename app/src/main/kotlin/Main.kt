@@ -30,7 +30,7 @@ enum class Screens {
 @Preview
 @OptIn(ExperimentalMaterial3Api::class)
 fun App() {
-    var screen by remember { mutableStateOf(Screens.LOGIN) }
+    var screen by remember { mutableStateOf(Screens.DASHBOARD) } // FIXME: This is just for testing....
     var topBar by remember { mutableStateOf<Pair<String, (@Composable () -> Unit)?>?>(null) }
     var configuration by remember { mutableStateOf(defaultConfiguration) }
 

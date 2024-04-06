@@ -17,6 +17,7 @@ enum class DashboardScreens(val title: String, val icon: ImageVector) {
     INVENTORY("Inventory", Icons.Filled.Inventory),
     CUSTOMERS("Customers", Icons.Filled.People),
     GIFT_CARDS("Gift Cards", Icons.Filled.CardGiftcard),
+    REPORTS("Reports", Icons.Filled.QueryStats),
     SETTINGS("Settings", Icons.Filled.Settings),
 }
 

@@ -24,13 +24,18 @@ val defaultConfiguration = Json.decodeFromString<Configuration>(runBlocking {
     Res.readBytes("files/config.json").decodeToString()
 })
 
-// If all this becomes unwieldy at some point, consider moving it to `store` package.
-
-fun getUserConfigFolder() = "/home/ideapad/.config/" // FIXME OS dependent drivel
+// If all this becomes unwieldy at some point, consider moving it to `storage` package.
+val userConfigFolder = if (System.getProperty("os.name").startsWith("Windows", true)) {
+    File(System.getenv("LOCALAPPDATA"))
+} else if (System.getProperty("os.name").startsWith("Mac", true)) {
+    File(System.getProperty("user.home"), "Library/Application Support")
+} else {
+    File(System.getenv("XDG_CONFIG_HOME") ?: "${System.getProperty("user.home")}/.config")
+}
 
 @OptIn(ExperimentalResourceApi::class)
 suspend fun configurationFile(): File = withContext(Dispatchers.IO) {
-    File(File(getUserConfigFolder(), "salezy"), "config.json").apply {
+    File(File(userConfigFolder, "salezy"), "config.json").apply {
         if (!exists()) {
             if (!parentFile.isDirectory && !parentFile.mkdirs()) {
                 throw IOException("Failed to create config parent folders at ${parent}!")
