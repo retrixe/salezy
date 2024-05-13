@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import xyz.retrixe.salezy.ui.screens.dashboard.GiftCardsScreen
 import xyz.retrixe.salezy.ui.screens.dashboard.InventoryScreen
 
 enum class DashboardScreens(val title: String, val icon: ImageVector) {
@@ -30,7 +31,7 @@ fun DashboardScreen(
     setTopBar(null)
 
     // FIXME default to POINT_OF_SALE
-    var screen by remember { mutableStateOf(DashboardScreens.INVENTORY) }
+    var screen by remember { mutableStateOf(DashboardScreens.GIFT_CARDS) }
 
     Row(Modifier.fillMaxSize()) {
         NavigationRail(Modifier.padding(8.dp)) {
@@ -58,7 +59,7 @@ fun DashboardScreen(
             // DashboardScreens.POINT_OF_SALE -> {}
             DashboardScreens.INVENTORY -> InventoryScreen()
             // DashboardScreens.CUSTOMERS -> {}
-            // DashboardScreens.GIFT_CARDS -> {}
+            DashboardScreens.GIFT_CARDS -> GiftCardsScreen()
             // DashboardScreens.SETTINGS -> {}
             else -> { /* FIXME */ }
         } }
