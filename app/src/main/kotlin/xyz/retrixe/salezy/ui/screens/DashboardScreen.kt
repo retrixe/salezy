@@ -14,6 +14,7 @@ import xyz.retrixe.salezy.ui.screens.dashboard.InventoryScreen
 
 enum class DashboardScreens(val title: String, val icon: ImageVector) {
     POINT_OF_SALE("Point Of Sale", Icons.Filled.PointOfSale),
+    TXN_HISTORY("Txn History", Icons.Filled.History),
     INVENTORY("Inventory", Icons.Filled.Inventory),
     CUSTOMERS("Customers", Icons.Filled.People),
     GIFT_CARDS("Gift Cards", Icons.Filled.CardGiftcard),

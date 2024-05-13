@@ -8,7 +8,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,6 +18,7 @@ import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
 import kotlinx.coroutines.launch
 import xyz.retrixe.salezy.api.entities.InventoryItem
+import xyz.retrixe.salezy.ui.components.SearchField
 
 // FIXME: Replace with actual API call to pull inventory items and display them
 val inventoryItems = listOf(
@@ -33,7 +33,6 @@ val inventoryItems = listOf(
     InventoryItem("Phone", null, 9, 900, 90)
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InventoryScreen() {
     val coroutineScope = rememberCoroutineScope()
@@ -58,15 +57,7 @@ fun InventoryScreen() {
         Box(Modifier.padding(8.dp))
         Card(Modifier.fillMaxSize()) {
             Column(Modifier.padding(24.dp)) {
-                DockedSearchBar(
-                    query = query,
-                    onQueryChange = { query = it },
-                    active = false, onActiveChange = {}, // No search result popout
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Search") },
-                    leadingIcon = { Icon(imageVector = Icons.Filled.Search, "Search") },
-                    onSearch = { /* TODO (low priority): Backend search for efficiency with pagination */ }
-                ) {}
+                SearchField(query = query, onQueryChange = { query = it })
 
                 Box(Modifier.padding(8.dp))
 
