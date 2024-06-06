@@ -15,29 +15,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import xyz.retrixe.salezy.api.entities.GiftCard
+import xyz.retrixe.salezy.api.entities.Customer
 import xyz.retrixe.salezy.ui.components.HeadTableCell
 import xyz.retrixe.salezy.ui.components.SearchField
 import xyz.retrixe.salezy.ui.components.TableCell
 import java.time.Instant
 
 // FIXME: Replace with actual API call
-val giftCards = listOf(
-    GiftCard("EUI2FVEU", 10, 10, 0, 0),
-    GiftCard("UIFBH2HD", 20, 20, 0, 0),
-    GiftCard("BEFW9HSS", 30, 30, 0, 0),
-    GiftCard("BRIRI329", 40, 40, 0, 0),
-    GiftCard("CSDR2831", 50, 50, 0, 0),
-    GiftCard("RJEJ2113", 60, 60, 0, 0),
-    GiftCard("EOIWOI9R", 70, 70, 0, 0),
-    GiftCard("GHR23829", 80, 80, 0, 0),
-    GiftCard("FUIRWHIH", 90, 90, 0, 0)
+val customers = listOf(
+    Customer(1, "(293)-023-3921", "John Doe", "test@gmail.com", "51 E Blvd", "N/A"),
+    Customer(2, "(493)-313-3851", "John Doe", "test@gmail.com", "51 E Blvd", "N/A"),
+    Customer(3, "(294)-085-3311", "John Doe", "test@gmail.com", "51 E Blvd", "N/A"),
 )
 
 @Composable
-fun GiftCardsScreen() {
+fun CustomersScreen() {
     var query by remember { mutableStateOf("") }
-    val giftCardsFiltered = giftCards.filter { it.id.contains(query, ignoreCase = true) } // FIXME fuzzy search
+    val customersFiltered = customers.filter { it.phone.contains(query, ignoreCase = true) } // FIXME fuzzy search
 
     Column(Modifier.fillMaxSize().padding(24.dp)) {
         Row(
@@ -45,11 +39,11 @@ fun GiftCardsScreen() {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("Gift Cards", fontSize = 24.sp)
+            Text("Customers", fontSize = 24.sp)
             ExtendedFloatingActionButton(
-                onClick = { println("Create Gift Card") }, // FIXME: Open add item dialog which calls back API
-                icon = { Icon(imageVector = Icons.Filled.Add, "Create Gift Card") },
-                text = { Text("Create Gift Card") }
+                onClick = { println("Add Customer") }, // FIXME: Open add item dialog which calls back API
+                icon = { Icon(imageVector = Icons.Filled.Add, "Add Customer") },
+                text = { Text("Add Customer") }
             )
         }
         Box(Modifier.padding(8.dp))
@@ -62,15 +56,15 @@ fun GiftCardsScreen() {
                 // FIXME: Edit, History and Delete options
                 Row(Modifier.fillMaxWidth()) {
                     HeadTableCell("Actions", .15f)
-                    HeadTableCell("ID", .15f)
-                    HeadTableCell("Issued balance", .15f)
-                    HeadTableCell("Current balance", .15f)
-                    HeadTableCell("Issued on", .2f)
-                    HeadTableCell("Expires on", .2f)
+                    HeadTableCell("Phone No", .15f)
+                    HeadTableCell("Name", .15f)
+                    HeadTableCell("Email", .15f)
+                    HeadTableCell("Address", .2f)
+                    HeadTableCell("Notes", .2f)
                 }
                 LazyColumn {
                     // item {}
-                    items(giftCardsFiltered) { item ->
+                    items(customersFiltered) { customer ->
                         HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.inverseSurface)
                         Row(Modifier.fillMaxWidth()) {
                             Row(Modifier.weight(.15f)) {
@@ -85,13 +79,12 @@ fun GiftCardsScreen() {
                                     Icon(imageVector = Icons.Filled.History, contentDescription = "History")
                                 }
                             }
-                            TableCell(text = item.id, weight = .15f)
-                            // FIXME long to decimal
-                            TableCell(text = item.issuedBalance.toString(), weight = .15f)
-                            TableCell(text = item.currentBalance.toString(), weight = .15f)
-                            // FIXME better formatting
-                            TableCell(text = Instant.ofEpochMilli(item.issuedOn).toString(), weight = .2f)
-                            TableCell(text = Instant.ofEpochMilli(item.expiresOn).toString(), weight = .2f)
+                            TableCell(text = customer.phone, weight = .15f)
+                            // FIXME truncate if too long
+                            TableCell(text = customer.name ?: "N/A", weight = .15f)
+                            TableCell(text = customer.email ?: "N/A", weight = .15f)
+                            TableCell(text = customer.address ?: "N/A", weight = .2f)
+                            TableCell(text = customer.notes ?: "N/A", weight = .2f)
                         }
                     }
                 }
