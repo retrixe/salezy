@@ -4,6 +4,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -12,18 +17,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import xyz.retrixe.salezy.api.entities.GiftCard
 import xyz.retrixe.salezy.ui.components.SearchField
+import java.time.Instant
 
 // FIXME: Replace with actual API call
 val giftCards = listOf(
-    GiftCard("Vase", 10.0),
-    GiftCard("cHOROCOLATE", 20.0),
-    GiftCard("THING", 30.0),
-    GiftCard("minecrasft", 40.0),
-    GiftCard("house", 50.0),
-    GiftCard("life", 60.0),
-    GiftCard("nextrjs", 70.0),
-    GiftCard("jwt", 80.0),
-    GiftCard("Phone",  90.0)
+    GiftCard("EUI283HUFVEU", 10, 10, 0, 0),
+    GiftCard("EUI283HUFVEU", 20, 20, 0, 0),
+    GiftCard("EUI283HUFVEU", 30, 30, 0, 0),
+    GiftCard("EUI283HUFVEU", 40, 40, 0, 0),
+    GiftCard("EUI283HUFVEU", 50, 50, 0, 0),
+    GiftCard("EUI283HUFVEU", 60, 60, 0, 0),
+    GiftCard("EUI283HUFVEU", 70, 70, 0, 0),
+    GiftCard("EUI283HUFVEU", 80, 80, 0, 0),
+    GiftCard("EUI283HUFVEU", 90, 90, 0, 0)
 )
 
 @Composable
@@ -49,6 +55,11 @@ fun GiftCardsScreen() {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text("Gift Cards", fontSize = 24.sp)
+            ExtendedFloatingActionButton(
+                onClick = { println("Create Gift Card") }, // FIXME: Open add item dialog which calls back API
+                icon = { Icon(imageVector = Icons.Filled.Add, "Create Gift Card") },
+                text = { Text("Create Gift Card") }
+            )
         }
         Box(Modifier.padding(8.dp))
         Card(Modifier.fillMaxSize()) {
@@ -57,18 +68,39 @@ fun GiftCardsScreen() {
 
                 Box(Modifier.padding(8.dp))
 
+                // FIXME: Edit, History and Delete options
+                Row(Modifier.fillMaxWidth()) {
+                    HeadTableCell("Actions", .15f)
+                    HeadTableCell("ID", .15f)
+                    HeadTableCell("Issued balance", .15f)
+                    HeadTableCell("Current balance", .15f)
+                    HeadTableCell("Issued on", .2f)
+                    HeadTableCell("Expires on", .2f)
+                }
                 LazyColumn {
-                    item {
-                        Row(Modifier.fillMaxWidth()) {
-                            HeadTableCell("ID", .7f)
-                            HeadTableCell("Balance", .3f)
-                        }
-                    }
+                    // item {}
                     items(giftCardsFiltered) { item ->
                         HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.inverseSurface)
                         Row(Modifier.fillMaxWidth()) {
-                            TableCell(text = item.id, weight = .7f)
-                            TableCell(text = item.balance.toString(), weight = .3f)
+                            Row(Modifier.weight(.15f)) {
+                                // FIXME do something
+                                IconButton(onClick = { println("Edit") }) {
+                                    Icon(imageVector = Icons.Filled.Edit, contentDescription = "Edit")
+                                }
+                                IconButton(onClick = { println("Delete") }) {
+                                    Icon(imageVector = Icons.Filled.Delete, contentDescription = "Delete")
+                                }
+                                IconButton(onClick = { println("History") }) {
+                                    Icon(imageVector = Icons.Filled.History, contentDescription = "History")
+                                }
+                            }
+                            TableCell(text = item.id, weight = .15f)
+                            // FIXME long to decimal
+                            TableCell(text = item.issuedBalance.toString(), weight = .15f)
+                            TableCell(text = item.currentBalance.toString(), weight = .15f)
+                            // FIXME better formatting
+                            TableCell(text = Instant.ofEpochMilli(item.issuedOn).toString(), weight = .2f)
+                            TableCell(text = Instant.ofEpochMilli(item.expiresOn).toString(), weight = .2f)
                         }
                     }
                 }

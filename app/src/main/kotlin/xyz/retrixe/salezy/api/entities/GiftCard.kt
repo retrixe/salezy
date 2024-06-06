@@ -4,5 +4,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable data class GiftCard(
     val id: String,
-    val balance: Double,
+    val currentBalance: Long,
+    val issuedBalance: Long,
+    val issuedOn: Long,
+    val expiresOn: Long
 )

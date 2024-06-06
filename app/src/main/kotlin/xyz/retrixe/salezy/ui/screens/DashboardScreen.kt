@@ -56,12 +56,13 @@ fun DashboardScreen(
         }
         VerticalDivider()
         AnimatedContent(targetState = screen) { targetState -> when (targetState) {
-            // DashboardScreens.POINT_OF_SALE -> {}
+            DashboardScreens.POINT_OF_SALE -> { /* FIXME */ }
+            DashboardScreens.TXN_HISTORY -> { /* FIXME */ }
             DashboardScreens.INVENTORY -> InventoryScreen()
-            // DashboardScreens.CUSTOMERS -> {}
+            DashboardScreens.CUSTOMERS -> { /* FIXME */ }
             DashboardScreens.GIFT_CARDS -> GiftCardsScreen()
-            // DashboardScreens.SETTINGS -> {}
-            else -> { /* FIXME */ }
+            DashboardScreens.REPORTS -> { /* FIXME */ }
+            DashboardScreens.SETTINGS -> { /* FIXME */ }
         } }
     }
 }
