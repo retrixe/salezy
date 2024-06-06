@@ -10,10 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import xyz.retrixe.salezy.ui.screens.dashboard.CustomersScreen
-import xyz.retrixe.salezy.ui.screens.dashboard.GiftCardsScreen
-import xyz.retrixe.salezy.ui.screens.dashboard.InventoryScreen
-import xyz.retrixe.salezy.ui.screens.dashboard.ReportsScreen
+import xyz.retrixe.salezy.ui.screens.dashboard.*
 
 enum class DashboardScreens(val title: String, val icon: ImageVector) {
     POINT_OF_SALE("Point Of Sale", Icons.Filled.PointOfSale),
@@ -58,7 +55,7 @@ fun DashboardScreen(
         VerticalDivider()
         AnimatedContent(targetState = screen) { targetState -> when (targetState) {
             DashboardScreens.POINT_OF_SALE -> { /* FIXME */ }
-            DashboardScreens.TXN_HISTORY -> { /* FIXME */ }
+            DashboardScreens.TXN_HISTORY -> TxnHistoryScreen()
             DashboardScreens.INVENTORY -> InventoryScreen()
             DashboardScreens.CUSTOMERS -> CustomersScreen()
             DashboardScreens.GIFT_CARDS -> GiftCardsScreen()
