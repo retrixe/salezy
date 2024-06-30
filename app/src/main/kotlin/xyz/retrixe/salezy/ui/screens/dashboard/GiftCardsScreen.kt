@@ -1,6 +1,5 @@
 package xyz.retrixe.salezy.ui.screens.dashboard
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -15,28 +14,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import xyz.retrixe.salezy.api.entities.GiftCard
+import xyz.retrixe.salezy.state.TempState
 import xyz.retrixe.salezy.ui.components.HeadTableCell
 import xyz.retrixe.salezy.ui.components.SearchField
 import xyz.retrixe.salezy.ui.components.TableCell
 import java.time.Instant
 
-// FIXME: Replace with actual API call
-val giftCards = listOf(
-    GiftCard("EUI2FVEU", 10, 10, 0, 0),
-    GiftCard("UIFBH2HD", 20, 20, 0, 0),
-    GiftCard("BEFW9HSS", 30, 30, 0, 0),
-    GiftCard("BRIRI329", 40, 40, 0, 0),
-    GiftCard("CSDR2831", 50, 50, 0, 0),
-    GiftCard("RJEJ2113", 60, 60, 0, 0),
-    GiftCard("EOIWOI9R", 70, 70, 0, 0),
-    GiftCard("GHR23829", 80, 80, 0, 0),
-    GiftCard("FUIRWHIH", 90, 90, 0, 0)
-)
-
 @Composable
 fun GiftCardsScreen() {
     var query by remember { mutableStateOf("") }
+    val giftCards by remember { mutableStateOf(TempState.giftCards) }
+
     val giftCardsFiltered = giftCards.filter { it.id.contains(query, ignoreCase = true) } // FIXME fuzzy search
 
     Column(Modifier.fillMaxSize().padding(24.dp)) {
@@ -61,6 +49,7 @@ fun GiftCardsScreen() {
 
                 // FIXME: Edit, History and Delete options
                 Row(Modifier.fillMaxWidth()) {
+                    // FIXME: Actions should have max width
                     HeadTableCell("Actions", .15f)
                     HeadTableCell("ID", .15f)
                     HeadTableCell("Issued balance", .15f)

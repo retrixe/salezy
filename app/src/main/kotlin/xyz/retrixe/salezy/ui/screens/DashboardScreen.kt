@@ -54,7 +54,7 @@ fun DashboardScreen(
         }
         VerticalDivider()
         AnimatedContent(targetState = screen) { targetState -> when (targetState) {
-            DashboardScreens.POINT_OF_SALE -> { /* FIXME */ }
+            DashboardScreens.POINT_OF_SALE -> PointOfSaleScreen()
             DashboardScreens.TXN_HISTORY -> TxnHistoryScreen()
             DashboardScreens.INVENTORY -> InventoryScreen()
             DashboardScreens.CUSTOMERS -> CustomersScreen()

@@ -1,6 +1,5 @@
 package xyz.retrixe.salezy.ui.screens.dashboard
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -15,22 +14,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import xyz.retrixe.salezy.api.entities.Customer
+import xyz.retrixe.salezy.state.TempState
 import xyz.retrixe.salezy.ui.components.HeadTableCell
 import xyz.retrixe.salezy.ui.components.SearchField
 import xyz.retrixe.salezy.ui.components.TableCell
-import java.time.Instant
-
-// FIXME: Replace with actual API call
-val customers = listOf(
-    Customer(1, "(293)-023-3921", "John Doe", "test@gmail.com", "51 E Blvd", "N/A"),
-    Customer(2, "(493)-313-3851", "John Doe", "test@gmail.com", "51 E Blvd", "N/A"),
-    Customer(3, "(294)-085-3311", "John Doe", "test@gmail.com", "51 E Blvd", "N/A"),
-)
 
 @Composable
 fun CustomersScreen() {
     var query by remember { mutableStateOf("") }
+    val customers by remember { mutableStateOf(TempState.customers) }
+
     val customersFiltered = customers.filter { it.phone.contains(query, ignoreCase = true) } // FIXME fuzzy search
 
     Column(Modifier.fillMaxSize().padding(24.dp)) {
@@ -55,6 +48,7 @@ fun CustomersScreen() {
 
                 // FIXME: Edit, History and Delete options
                 Row(Modifier.fillMaxWidth()) {
+                    // FIXME: Actions should have max width
                     HeadTableCell("Actions", .15f)
                     HeadTableCell("Phone No", .15f)
                     HeadTableCell("Name", .15f)

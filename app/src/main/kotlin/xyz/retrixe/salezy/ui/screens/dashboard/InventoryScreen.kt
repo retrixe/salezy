@@ -17,21 +17,8 @@ import androidx.compose.ui.unit.sp
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
 import kotlinx.coroutines.launch
-import xyz.retrixe.salezy.api.entities.InventoryItem
+import xyz.retrixe.salezy.state.TempState
 import xyz.retrixe.salezy.ui.components.SearchField
-
-// FIXME: Replace with actual API call to pull inventory items and display them
-val inventoryItems = listOf(
-    InventoryItem("Vase", "https://cdn.discordapp.com/stickers/1224711111098499193.png", 1, 100, 10),
-    InventoryItem("cHOROCOLATE", "https://cdn.discordapp.com/stickers/1224711111098499193.png", 2, 200, 20),
-    InventoryItem("THING", "https://cdn.discordapp.com/stickers/1224711111098499193.png", 3, 300, 30),
-    InventoryItem("minecrasft", "https://cdn.discordapp.com/stickers/1224711111098499193.png", 4, 400, 40),
-    InventoryItem("house", "https://cdn.discordapp.com/stickers/1224711111098499193.png", 5, 500, 50),
-    InventoryItem("life", "https://cdn.discordapp.com/stickers/1224711111098499193.png", 6, 600, 60),
-    InventoryItem("nextrjs", null, 7, 700, 70),
-    InventoryItem("jwt", null, 8, 800, 80),
-    InventoryItem("Phone", null, 9, 900, 90)
-)
 
 @Composable
 fun InventoryScreen() {
@@ -39,6 +26,8 @@ fun InventoryScreen() {
     val snackbarHostState = remember { SnackbarHostState() }
 
     var query by remember { mutableStateOf("") }
+    val inventoryItems by remember { mutableStateOf(TempState.inventoryItems) }
+
     val inventoryItemsFiltered = inventoryItems.filter { it.name.contains(query, ignoreCase = true) } // FIXME fuzzy search
 
     Column(Modifier.fillMaxSize().padding(24.dp)) {
@@ -77,19 +66,17 @@ fun InventoryScreen() {
                                 onLoading = { _ -> Box(Modifier.fillMaxSize(), Alignment.Center) {
                                     CircularProgressIndicator()
                                 } },
-                                onFailure = { exception ->
-                                    coroutineScope.launch {
-                                        snackbarHostState.showSnackbar(
-                                            message = exception.message.toString(),
-                                            actionLabel = "Hide",
-                                            duration = SnackbarDuration.Short
-                                        )
-                                    }
-                                }
+                                onFailure = { exception -> coroutineScope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        message = exception.message.toString(),
+                                        actionLabel = "Hide",
+                                        duration = SnackbarDuration.Short
+                                    )
+                                } }
                             )
                             Column(Modifier.padding(8.dp)) {
                                 Text(item.name, fontSize = 20.sp)
-                                Text("Ref# ${item.referenceNumber}", fontSize = 20.sp)
+                                Text("#${item.upc}", fontSize = 20.sp)
                                 Text("$${item.price} | ${item.quantity} in stock")
                             }
                             if (item.imageUrl == null) Box(Modifier.size(160.dp))

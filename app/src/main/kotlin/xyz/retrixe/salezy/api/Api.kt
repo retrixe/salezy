@@ -21,7 +21,7 @@ class Api {
     var url = defaultConfiguration.instanceUrl
     private val client = HttpClient(Java) {
         install(ContentNegotiation) {
-            json(Json { ignoreUnknownKeys = true })
+            json(Json)
         }
         install(DefaultRequest) {
             url(this@Api.url)
