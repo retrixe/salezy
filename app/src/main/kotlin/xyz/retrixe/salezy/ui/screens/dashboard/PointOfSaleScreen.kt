@@ -21,17 +21,18 @@ import xyz.retrixe.salezy.state.LocalSnackbarHostState
 import xyz.retrixe.salezy.state.TempState
 import xyz.retrixe.salezy.ui.components.HeadTableCell
 import xyz.retrixe.salezy.ui.components.TableCell
+import xyz.retrixe.salezy.ui.dialogs.AddEditCustomerDialog
 
 @Composable
 fun PointOfSaleScreen() {
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = LocalSnackbarHostState.current
 
+    val invoiceItems = remember { mutableStateListOf<InvoicedItem>() }
+    var addInvoiceItemField by remember { mutableStateOf("") }
+    var customerId by remember { mutableStateOf<Int?>(null) }
     var notes by remember { mutableStateOf("") }
     var overrideTaxRateValue by remember { mutableStateOf(20f) }
-    val invoiceItems = remember { mutableStateListOf<InvoicedItem>() }
-    var customerId by remember { mutableStateOf<Int?>(null) }
-    var addInvoiceItemField by remember { mutableStateOf("") }
 
     fun addInvoiceItem() {
         val fieldAsUPC = addInvoiceItemField.toLongOrNull()
@@ -57,6 +58,23 @@ fun PointOfSaleScreen() {
 
         addInvoiceItemField = ""
     }
+
+    // FIXME can this be unified into one state?
+    var openNewCustomerDialog by remember { mutableStateOf(false) }
+    AddEditCustomerDialog(
+        open = openNewCustomerDialog,
+        label = "Add New Customer",
+        initialValue = null,
+        onDismiss = { openNewCustomerDialog = false },
+        onSubmit = { TempState.customers.add(it); customerId = it.id })
+
+    var openEditCustomerDialog by remember { mutableStateOf(false) }
+    if (openEditCustomerDialog) AddEditCustomerDialog( // FIXME dirty hack, remove if statement
+        open = openEditCustomerDialog,
+        label = "Edit Customer",
+        initialValue = TempState.customers.find { it.id == customerId },
+        onDismiss = { openEditCustomerDialog = false },
+        onSubmit = { TempState.customers[TempState.customers.indexOfFirst { c -> c.id == customerId }] = it })
 
     Row(Modifier.fillMaxSize().padding(24.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
         Card(Modifier.weight(1f).fillMaxHeight()) {
@@ -87,6 +105,7 @@ fun PointOfSaleScreen() {
                             }
                         }
                         // FIXME truncate if too long
+                        // FIXME item out of stock checks
                         val inventoryItem = TempState.inventoryItems.find { it.upc == item.id }!! // FIXME: Drop assert
                         TableCell(text = inventoryItem.name, weight = .3f)
                         TableCell(text = inventoryItem.upc.toString(), weight = .2f)
@@ -129,11 +148,11 @@ fun PointOfSaleScreen() {
                     Text("Address: ${customer.address}")
                     Text("Notes: ${customer.notes}")
                     // FIXME: shipping address
-                    Row(horizontalArrangement = Arrangement.SpaceBetween) {
-                        Button(onClick = { /* FIXME: Open customer edit */ }) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Button(onClick = { openEditCustomerDialog = true }) {
                             Text("Edit Customer")
                         }
-                        Button(onClick = { customerId = null }) {
+                        OutlinedButton(onClick = { customerId = null }) {
                             Text("Clear")
                         }
                     }
@@ -142,7 +161,7 @@ fun PointOfSaleScreen() {
                         Button(onClick = { /* FIXME: Open customer search */ }, Modifier.weight(1f)) {
                             Text("Returning Customer")
                         }
-                        Button(onClick = { /* FIXME */ }, Modifier.weight(1f)) {
+                        Button(onClick = { openNewCustomerDialog = true }, Modifier.weight(1f)) {
                             Text("New Customer")
                         }
                     }

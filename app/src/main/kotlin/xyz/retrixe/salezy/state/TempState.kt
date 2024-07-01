@@ -17,7 +17,7 @@ object TempState {
         GiftCard("FUIRWHIH", 90, 90, 0, 0),
     )
 
-    val inventoryItems = listOf(
+    val inventoryItems = mutableListOf(
         InventoryItem("Vase", "https://cdn.discordapp.com/stickers/1224711111098499193.png", 1, "N/A", 100, 10),
         InventoryItem("Chocolate", null, 2, "N/A", 200, 20),
         InventoryItem("Perfume", null, 3, "N/A", 300, 30),
@@ -29,13 +29,13 @@ object TempState {
         InventoryItem("Phone", "https://rukminim2.flixcart.com/image/850/1000/xif0q/mobile/g/x/9/-original-imaggsudg5fufyte.jpeg?q=90&crop=false", 9, "N/A", 900, 90),
     )
 
-    val customers = listOf(
+    val customers = mutableListOf(
         Customer(1, "(293)-023-3921", "John Doe", "test@gmail.com", "51 E Blvd", null, "N/A"),
         Customer(2, "(493)-313-3851", "John Doe", "test@gmail.com", "51 E Blvd", null, "N/A"),
         Customer(3, "(294)-085-3311", "John Doe", "test@gmail.com", "51 E Blvd", null, "N/A"),
     )
 
-    val invoices = listOf(
+    val invoices = mutableListOf(
         Invoice(
             32451,
             1345,

@@ -17,13 +17,32 @@ import xyz.retrixe.salezy.state.TempState
 import xyz.retrixe.salezy.ui.components.HeadTableCell
 import xyz.retrixe.salezy.ui.components.SearchField
 import xyz.retrixe.salezy.ui.components.TableCell
+import xyz.retrixe.salezy.ui.dialogs.AddEditCustomerDialog
 
 @Composable
 fun CustomersScreen() {
     var query by remember { mutableStateOf("") }
-    val customers by remember { mutableStateOf(TempState.customers) }
+    var customers by remember { mutableStateOf(TempState.customers) }
 
     val customersFiltered = customers.filter { it.phone.contains(query, ignoreCase = true) } // FIXME fuzzy search
+
+    var openNewCustomerDialog by remember { mutableStateOf(false) }
+    AddEditCustomerDialog(
+        open = openNewCustomerDialog,
+        label = "Add New Customer",
+        initialValue = null,
+        onDismiss = { openNewCustomerDialog = false },
+        onSubmit = { TempState.customers.add(it); customers = TempState.customers })
+
+    var openEditCustomerDialog by remember { mutableStateOf<Int?>(null) }
+    if (openEditCustomerDialog != null) AddEditCustomerDialog( // FIXME ugh
+        open = true,
+        label = "Edit Item",
+        initialValue = customers.find { it.id == openEditCustomerDialog },
+        onDismiss = { openEditCustomerDialog = null },
+        onSubmit = { TempState.customers[TempState.customers.indexOfFirst {
+            customer -> customer.id == openEditCustomerDialog
+        }] = it })
 
     Column(Modifier.fillMaxSize().padding(24.dp)) {
         Row(
@@ -33,7 +52,7 @@ fun CustomersScreen() {
         ) {
             Text("Customers", fontSize = 24.sp)
             ExtendedFloatingActionButton(
-                onClick = { println("Add Customer") }, // FIXME: Open add item dialog which calls back API
+                onClick = { openNewCustomerDialog = true },
                 icon = { Icon(imageVector = Icons.Filled.Add, "Add Customer") },
                 text = { Text("Add Customer") }
             )
@@ -64,7 +83,7 @@ fun CustomersScreen() {
                         Row(Modifier.fillMaxWidth()) {
                             Row(Modifier.weight(.15f)) {
                                 // FIXME do something
-                                IconButton(onClick = { println("Edit") }) {
+                                IconButton(onClick = { openEditCustomerDialog = customer.id }) {
                                     Icon(imageVector = Icons.Filled.Edit, contentDescription = "Edit")
                                 }
                                 IconButton(onClick = { println("History") }) {

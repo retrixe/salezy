@@ -20,6 +20,7 @@ import kotlinx.coroutines.launch
 import xyz.retrixe.salezy.state.LocalSnackbarHostState
 import xyz.retrixe.salezy.state.TempState
 import xyz.retrixe.salezy.ui.components.SearchField
+import xyz.retrixe.salezy.ui.dialogs.AddEditItemDialog
 
 @Composable
 fun InventoryScreen() {
@@ -27,12 +28,31 @@ fun InventoryScreen() {
     val snackbarHostState = LocalSnackbarHostState.current
 
     var query by remember { mutableStateOf("") }
-    val inventoryItems by remember { mutableStateOf(TempState.inventoryItems) }
+    var inventoryItems by remember { mutableStateOf(TempState.inventoryItems) }
 
     val inventoryItemsFiltered = inventoryItems.filter {
         it.name.contains(query, ignoreCase = true) ||
                 it.upc.toString().contains(query, ignoreCase = true)
     } // FIXME fuzzy search
+
+    // FIXME single dialog call would be nice.
+    var openNewItemDialog by remember { mutableStateOf(false) }
+    AddEditItemDialog(
+        open = openNewItemDialog,
+        label = "Add New Item",
+        initialValue = null,
+        onDismiss = { openNewItemDialog = false },
+        onSubmit = { TempState.inventoryItems.add(it); inventoryItems = TempState.inventoryItems })
+
+    var openEditItemDialog by remember { mutableStateOf<Long?>(null) }
+    if (openEditItemDialog != null) AddEditItemDialog( // FIXME ugh
+        open = true,
+        label = "Edit Item",
+        initialValue = inventoryItems.find { it.upc == openEditItemDialog },
+        onDismiss = { openEditItemDialog = null },
+        onSubmit = { TempState.inventoryItems[TempState.inventoryItems.indexOfFirst {
+            item -> item.upc == openEditItemDialog
+        }] = it })
 
     Column(Modifier.fillMaxSize().padding(24.dp)) {
         Row(
@@ -42,7 +62,7 @@ fun InventoryScreen() {
         ) {
             Text("Inventory", fontSize = 24.sp)
             ExtendedFloatingActionButton(
-                onClick = { println("Add item") }, // FIXME: Open add item dialog which calls back API
+                onClick = { openNewItemDialog = true },
                 icon = { Icon(imageVector = Icons.Filled.Add, "Add Item") },
                 text = { Text("Add Item") }
             )
@@ -63,7 +83,9 @@ fun InventoryScreen() {
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                 ) { items(inventoryItemsFiltered) { item ->
                     ElevatedCard(elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)) {
-                        Column(Modifier.padding(8.dp).fillMaxWidth().clickable { /* FIXME: Open item edit side view */ }) {
+                        Column(Modifier.padding(8.dp).fillMaxWidth().clickable {
+                            openEditItemDialog = item.upc
+                        }) {
                             Column(Modifier.padding(8.dp)) {
                                 Text(item.name, fontSize = 20.sp)
                                 Text("UPC ${item.upc}", fontSize = 20.sp)
