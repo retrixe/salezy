@@ -12,13 +12,13 @@ import androidx.compose.ui.Modifier
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchField(query: String, onQueryChange: (String) -> Unit) {
+fun SearchField(placeholder: String, query: String, onQueryChange: (String) -> Unit) {
     DockedSearchBar(
         query = query,
         onQueryChange = { onQueryChange(it) },
         active = false, onActiveChange = {}, // No search result popout
         modifier = Modifier.fillMaxWidth(),
-        placeholder = { Text("Search") },
+        placeholder = { Text(placeholder) },
         leadingIcon = { Icon(imageVector = Icons.Filled.Search, "Search") },
         onSearch = { /* TODO (low priority): Backend search for efficiency with pagination */ }
     ) {}

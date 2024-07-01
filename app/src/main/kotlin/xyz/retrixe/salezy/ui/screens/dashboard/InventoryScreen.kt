@@ -29,7 +29,10 @@ fun InventoryScreen() {
     var query by remember { mutableStateOf("") }
     val inventoryItems by remember { mutableStateOf(TempState.inventoryItems) }
 
-    val inventoryItemsFiltered = inventoryItems.filter { it.name.contains(query, ignoreCase = true) } // FIXME fuzzy search
+    val inventoryItemsFiltered = inventoryItems.filter {
+        it.name.contains(query, ignoreCase = true) ||
+                it.upc.toString().contains(query, ignoreCase = true)
+    } // FIXME fuzzy search
 
     Column(Modifier.fillMaxSize().padding(24.dp)) {
         Row(
@@ -47,7 +50,10 @@ fun InventoryScreen() {
         Box(Modifier.padding(8.dp))
         Card(Modifier.fillMaxSize()) {
             Column(Modifier.padding(24.dp)) {
-                SearchField(query = query, onQueryChange = { query = it })
+                SearchField(
+                    placeholder = "Search by name or UPC",
+                    query = query,
+                    onQueryChange = { query = it })
 
                 Box(Modifier.padding(8.dp))
 

@@ -27,9 +27,6 @@ object TempState {
         InventoryItem("Laptop", null, 7, "N/A", 700, 70),
         InventoryItem("Water Bottle", null, 8, "N/A", 800, 80),
         InventoryItem("Phone", "https://rukminim2.flixcart.com/image/850/1000/xif0q/mobile/g/x/9/-original-imaggsudg5fufyte.jpeg?q=90&crop=false", 9, "N/A", 900, 90),
-        InventoryItem("Phone", "https://rukminim2.flixcart.com/image/850/1000/xif0q/mobile/g/x/9/-original-imaggsudg5fufyte.jpeg?q=90&crop=false", 10, "N/A", 900, 90),
-        InventoryItem("Phone", "https://rukminim2.flixcart.com/image/850/1000/xif0q/mobile/g/x/9/-original-imaggsudg5fufyte.jpeg?q=90&crop=false", 11, "N/A", 900, 90),
-        InventoryItem("Phone", "https://rukminim2.flixcart.com/image/850/1000/xif0q/mobile/g/x/9/-original-imaggsudg5fufyte.jpeg?q=90&crop=false", 12, "N/A", 900, 90),
     )
 
     val customers = listOf(
@@ -42,8 +39,8 @@ object TempState {
         Invoice(
             32451,
             1345,
-            4200,
-            4620,
+            4000,
+            4400,
             10,
             Instant.now().toEpochMilli(),
             listOf(InvoicedItem(1, 2)),

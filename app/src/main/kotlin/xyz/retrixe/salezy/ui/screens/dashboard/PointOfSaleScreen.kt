@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.text.input.KeyboardType
@@ -26,6 +27,8 @@ fun PointOfSaleScreen() {
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = LocalSnackbarHostState.current
 
+    var notes by remember { mutableStateOf("") }
+    var overrideTaxRateValue by remember { mutableStateOf(20f) }
     val invoiceItems = remember { mutableStateListOf<InvoicedItem>() }
     var customerId by remember { mutableStateOf<Int?>(null) }
     var addInvoiceItemField by remember { mutableStateOf("") }
@@ -145,9 +148,26 @@ fun PointOfSaleScreen() {
                     }
                 }
             } }
-            Card(Modifier.weight(1f).fillMaxWidth()) {
-                // FIXME: Notes and specialised tax rate
-            }
+            Card(Modifier.weight(1f).fillMaxWidth()) { Column(
+                Modifier.fillMaxSize().padding(12.dp),
+                horizontalAlignment = Alignment.End) {
+                OutlinedTextField(value = notes, onValueChange = { notes = it },
+                    label = { Text("Notes") },
+                    singleLine = false,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp).weight(1f))
+
+                OutlinedTextField(value = overrideTaxRateValue.toString(),
+                    onValueChange = { overrideTaxRateValue = it.toFloatOrNull() ?: overrideTaxRateValue },
+                    label = { Text("Override tax rate") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
+
+                Button(onClick = { /* FIXME */ }) {
+                    Text("Proceed to payment")
+                }
+            } }
         }
     }
 }

@@ -35,7 +35,10 @@ fun TxnHistoryScreen() {
         Box(Modifier.padding(8.dp))
         Card(Modifier.fillMaxSize()) {
             Column(Modifier.padding(24.dp)) {
-                SearchField(query = query, onQueryChange = { query = it })
+                SearchField(
+                    placeholder = "Search by ID",
+                    query = query,
+                    onQueryChange = { query = it })
 
                 Box(Modifier.padding(8.dp))
 

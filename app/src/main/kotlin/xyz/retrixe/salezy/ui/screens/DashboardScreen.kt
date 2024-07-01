@@ -60,7 +60,7 @@ fun DashboardScreen(
             DashboardScreens.CUSTOMERS -> CustomersScreen()
             DashboardScreens.GIFT_CARDS -> GiftCardsScreen()
             DashboardScreens.REPORTS -> ReportsScreen()
-            DashboardScreens.SETTINGS -> { /* FIXME */ }
+            DashboardScreens.SETTINGS -> SettingsScreen()
         } }
     }
 }

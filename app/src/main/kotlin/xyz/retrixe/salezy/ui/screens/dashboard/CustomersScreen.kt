@@ -41,7 +41,10 @@ fun CustomersScreen() {
         Box(Modifier.padding(8.dp))
         Card(Modifier.fillMaxSize()) {
             Column(Modifier.padding(24.dp)) {
-                SearchField(query = query, onQueryChange = { query = it })
+                SearchField(
+                    placeholder = "Search by phone number",
+                    query = query,
+                    onQueryChange = { query = it })
 
                 Box(Modifier.padding(8.dp))
 
