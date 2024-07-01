@@ -14,13 +14,18 @@ import androidx.compose.ui.input.key.*
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 import xyz.retrixe.salezy.api.entities.InvoicedItem
+import xyz.retrixe.salezy.state.LocalSnackbarHostState
 import xyz.retrixe.salezy.state.TempState
 import xyz.retrixe.salezy.ui.components.HeadTableCell
 import xyz.retrixe.salezy.ui.components.TableCell
 
 @Composable
 fun PointOfSaleScreen() {
+    val coroutineScope = rememberCoroutineScope()
+    val snackbarHostState = LocalSnackbarHostState.current
+
     val invoiceItems = remember { mutableStateListOf<InvoicedItem>() }
     var customerId by remember { mutableStateOf<Int?>(null) }
     var addInvoiceItemField by remember { mutableStateOf("") }
@@ -40,7 +45,11 @@ fun PointOfSaleScreen() {
             invoiceItems[invoiceItemByUPC] = invoiceItems[invoiceItemByUPC]
                 .copy(count = invoiceItems[invoiceItemByUPC].count + 1)
         } else {
-            // FIXME: Search SKU else show popover
+            // FIXME: Search for SKUs before resorting to popover
+            coroutineScope.launch { snackbarHostState.showSnackbar(
+                message = "Item not found! Enter valid UPC.",
+                actionLabel = "Hide",
+                duration = SnackbarDuration.Short) }
         }
 
         addInvoiceItemField = ""
@@ -78,11 +87,13 @@ fun PointOfSaleScreen() {
                         val inventoryItem = TempState.inventoryItems.find { it.upc == item.id }!! // FIXME: Drop assert
                         TableCell(text = inventoryItem.name, weight = .3f)
                         TableCell(text = inventoryItem.upc.toString(), weight = .2f)
+                        // FIXME long to decimal
                         TableCell(text = "$${inventoryItem.price}", weight = .15f)
                         TableCell(text = item.count.toString(), weight = .1f)
                     }
                 }
             }
+
             OutlinedTextField(value = addInvoiceItemField, onValueChange = { addInvoiceItemField = it },
                 label = { Text("Add item by UPC") },
                 singleLine = true,
@@ -96,6 +107,12 @@ fun PointOfSaleScreen() {
                             true
                         } else false
                     })
+
+            // FIXME long to decimal, also drop assert
+            val total = invoiceItems.sumOf { item ->
+                TempState.inventoryItems.find { it.upc == item.id }!!.price * item.count }
+            Text("Total: \$$total", fontSize = 24.sp,
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp))
         }
 
         Column(Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -108,7 +125,8 @@ fun PointOfSaleScreen() {
                     Text("Email: ${customer.email}")
                     Text("Address: ${customer.address}")
                     Text("Notes: ${customer.notes}")
-                    Row {
+                    // FIXME: shipping address
+                    Row(horizontalArrangement = Arrangement.SpaceBetween) {
                         Button(onClick = { /* FIXME: Open customer edit */ }) {
                             Text("Edit Customer")
                         }

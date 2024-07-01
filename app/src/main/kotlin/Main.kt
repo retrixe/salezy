@@ -13,10 +13,7 @@ import org.jetbrains.compose.resources.painterResource
 import xyz.retrixe.salezy.api.Api
 import xyz.retrixe.salezy.generated.resources.Res
 import xyz.retrixe.salezy.generated.resources.logo
-import xyz.retrixe.salezy.state.ConfigurationState
-import xyz.retrixe.salezy.state.defaultConfiguration
-import xyz.retrixe.salezy.state.loadConfiguration
-import xyz.retrixe.salezy.state.saveConfiguration
+import xyz.retrixe.salezy.state.*
 import xyz.retrixe.salezy.ui.screens.DashboardScreen
 import xyz.retrixe.salezy.ui.screens.LoginScreen
 import xyz.retrixe.salezy.ui.theme.AppTheme
@@ -30,6 +27,7 @@ enum class Screens {
 @Preview
 @OptIn(ExperimentalMaterial3Api::class)
 fun App() {
+    val snackbarHostState = remember { SnackbarHostState() }
     var screen by remember { mutableStateOf(Screens.DASHBOARD) } // FIXME: This is just for testing....
     var topBar by remember { mutableStateOf<Pair<String, (@Composable () -> Unit)?>?>(null) }
     var configuration by remember { mutableStateOf(defaultConfiguration) }
@@ -42,13 +40,19 @@ fun App() {
     SideEffect { Api.instance.url = configuration.instanceUrl }
 
     AppTheme {
-        Scaffold(topBar = {
-            if (topBar != null) TopAppBar(
-                title = { Text(topBar!!.first) },
-                actions = { topBar!!.second?.invoke() }
-            )
-        }) { innerPadding -> Box(modifier = Modifier.padding(innerPadding)) {
-            CompositionLocalProvider(ConfigurationState provides configuration) {
+        Scaffold(
+            topBar = {
+                if (topBar != null) TopAppBar(
+                    title = { Text(topBar!!.first) },
+                    actions = { topBar!!.second?.invoke() }
+                )
+            },
+            snackbarHost = { SnackbarHost(snackbarHostState) }
+        ) { innerPadding -> Box(modifier = Modifier.padding(innerPadding)) {
+            CompositionLocalProvider(values = arrayOf(
+                ConfigurationState provides configuration,
+                LocalSnackbarHostState provides snackbarHostState
+            )) {
                 AnimatedContent(targetState = screen) { targetState -> when (targetState) {
                     Screens.LOGIN -> LoginScreen(
                         setTopBar = { title, action -> topBar = Pair(title, action) },

@@ -8,5 +8,6 @@ import kotlinx.serialization.Serializable
     val name: String?,
     val email: String?,
     val address: String?,
+    val taxIdNumber: String?,
     val notes: String?,
 )

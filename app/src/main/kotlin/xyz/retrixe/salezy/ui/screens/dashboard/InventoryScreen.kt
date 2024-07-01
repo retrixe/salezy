@@ -17,13 +17,14 @@ import androidx.compose.ui.unit.sp
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
 import kotlinx.coroutines.launch
+import xyz.retrixe.salezy.state.LocalSnackbarHostState
 import xyz.retrixe.salezy.state.TempState
 import xyz.retrixe.salezy.ui.components.SearchField
 
 @Composable
 fun InventoryScreen() {
     val coroutineScope = rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
+    val snackbarHostState = LocalSnackbarHostState.current
 
     var query by remember { mutableStateOf("") }
     val inventoryItems by remember { mutableStateOf(TempState.inventoryItems) }
@@ -57,6 +58,11 @@ fun InventoryScreen() {
                 ) { items(inventoryItemsFiltered) { item ->
                     ElevatedCard(elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)) {
                         Column(Modifier.padding(8.dp).fillMaxWidth().clickable { /* FIXME: Open item edit side view */ }) {
+                            Column(Modifier.padding(8.dp)) {
+                                Text(item.name, fontSize = 20.sp)
+                                Text("UPC ${item.upc}", fontSize = 20.sp)
+                                Text("$${item.price} | ${item.quantity} in stock")
+                            }
                             if (item.imageUrl != null) KamelImage(
                                 modifier = Modifier.size(160.dp)
                                     .align(Alignment.CenterHorizontally),
@@ -73,13 +79,7 @@ fun InventoryScreen() {
                                         duration = SnackbarDuration.Short
                                     )
                                 } }
-                            )
-                            Column(Modifier.padding(8.dp)) {
-                                Text(item.name, fontSize = 20.sp)
-                                Text("#${item.upc}", fontSize = 20.sp)
-                                Text("$${item.price} | ${item.quantity} in stock")
-                            }
-                            if (item.imageUrl == null) Box(Modifier.size(160.dp))
+                            ) else Box(Modifier.size(160.dp))
                         }
                     }
                 } }

@@ -5,7 +5,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.*
@@ -46,7 +45,6 @@ fun CustomersScreen() {
 
                 Box(Modifier.padding(8.dp))
 
-                // FIXME: Edit, History and Delete options
                 Row(Modifier.fillMaxWidth()) {
                     // FIXME: Actions should have max width
                     HeadTableCell("Actions", .15f)
@@ -65,9 +63,6 @@ fun CustomersScreen() {
                                 // FIXME do something
                                 IconButton(onClick = { println("Edit") }) {
                                     Icon(imageVector = Icons.Filled.Edit, contentDescription = "Edit")
-                                }
-                                IconButton(onClick = { println("Delete") }) {
-                                    Icon(imageVector = Icons.Filled.Delete, contentDescription = "Delete")
                                 }
                                 IconButton(onClick = { println("History") }) {
                                     Icon(imageVector = Icons.Filled.History, contentDescription = "History")

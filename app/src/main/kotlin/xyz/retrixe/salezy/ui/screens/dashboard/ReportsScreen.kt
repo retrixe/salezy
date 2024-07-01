@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import xyz.retrixe.salezy.state.TempState
 
 // FIXME: Replace with actual API call
 
@@ -39,15 +40,21 @@ fun ReportsScreen() {
             ) {
                 item { Card { Column(Modifier.padding(16.dp)) {
                     Text("Net Revenue (excl tax)", fontSize = 24.sp)
-                    Text("$160,000", fontSize = 40.sp)
+                    Text(
+                        "$${TempState.invoices
+                            .fold(0L) { acc, invoice -> acc + invoice.beforeTaxCost }}",
+                        fontSize = 40.sp)
                 } } }
                 item { Card { Column(Modifier.padding(16.dp)) {
                     Text("Total Items Sold", fontSize = 24.sp)
-                    Text("1400", fontSize = 40.sp)
+                    Text(TempState.invoices
+                        .fold(0L) { acc, invoice -> acc + invoice.items
+                            .fold(0) { acc2, item -> acc2 + item.count } }.toString(),
+                        fontSize = 40.sp)
                 } } }
                 item { Card { Column(Modifier.padding(16.dp)) {
                     Text("Most Sold Item", fontSize = 24.sp)
-                    Text("Vase", fontSize = 40.sp)
+                    Text("N/A", fontSize = 40.sp)
                 } } }
             }
             Card(Modifier.fillMaxSize().padding(16.dp)) {

@@ -1,8 +1,7 @@
 package xyz.retrixe.salezy.state
 
-import xyz.retrixe.salezy.api.entities.Customer
-import xyz.retrixe.salezy.api.entities.GiftCard
-import xyz.retrixe.salezy.api.entities.InventoryItem
+import xyz.retrixe.salezy.api.entities.*
+import java.time.Instant
 
 // FIXME: Remove all references to these states!
 object TempState {
@@ -20,19 +19,34 @@ object TempState {
 
     val inventoryItems = listOf(
         InventoryItem("Vase", "https://cdn.discordapp.com/stickers/1224711111098499193.png", 1, "N/A", 100, 10),
-        InventoryItem("cHOROCOLATE", "https://cdn.discordapp.com/stickers/1224711111098499193.png", 2, "N/A", 200, 20),
-        InventoryItem("THING", "https://cdn.discordapp.com/stickers/1224711111098499193.png", 3, "N/A", 300, 30),
-        InventoryItem("minecrasft", "https://cdn.discordapp.com/stickers/1224711111098499193.png", 4, "N/A", 400, 40),
-        InventoryItem("house", "https://cdn.discordapp.com/stickers/1224711111098499193.png", 5, "N/A", 500, 50),
-        InventoryItem("life", "https://cdn.discordapp.com/stickers/1224711111098499193.png", 6, "N/A", 600, 60),
-        InventoryItem("nextrjs", null, 7, "N/A", 700, 70),
-        InventoryItem("jwt", null, 8, "N/A", 800, 80),
-        InventoryItem("Phone", null, 9, "N/A", 900, 90),
+        InventoryItem("Chocolate", null, 2, "N/A", 200, 20),
+        InventoryItem("Perfume", null, 3, "N/A", 300, 30),
+        InventoryItem("Game", null, 4, "N/A", 400, 40),
+        InventoryItem("House", null, 5, "N/A", 500, 50),
+        InventoryItem("Light", null, 6, "N/A", 600, 60),
+        InventoryItem("Laptop", null, 7, "N/A", 700, 70),
+        InventoryItem("Water Bottle", null, 8, "N/A", 800, 80),
+        InventoryItem("Phone", "https://rukminim2.flixcart.com/image/850/1000/xif0q/mobile/g/x/9/-original-imaggsudg5fufyte.jpeg?q=90&crop=false", 9, "N/A", 900, 90),
+        InventoryItem("Phone", "https://rukminim2.flixcart.com/image/850/1000/xif0q/mobile/g/x/9/-original-imaggsudg5fufyte.jpeg?q=90&crop=false", 10, "N/A", 900, 90),
+        InventoryItem("Phone", "https://rukminim2.flixcart.com/image/850/1000/xif0q/mobile/g/x/9/-original-imaggsudg5fufyte.jpeg?q=90&crop=false", 11, "N/A", 900, 90),
+        InventoryItem("Phone", "https://rukminim2.flixcart.com/image/850/1000/xif0q/mobile/g/x/9/-original-imaggsudg5fufyte.jpeg?q=90&crop=false", 12, "N/A", 900, 90),
     )
 
     val customers = listOf(
-        Customer(1, "(293)-023-3921", "John Doe", "test@gmail.com", "51 E Blvd", "N/A"),
-        Customer(2, "(493)-313-3851", "John Doe", "test@gmail.com", "51 E Blvd", "N/A"),
-        Customer(3, "(294)-085-3311", "John Doe", "test@gmail.com", "51 E Blvd", "N/A"),
+        Customer(1, "(293)-023-3921", "John Doe", "test@gmail.com", "51 E Blvd", null, "N/A"),
+        Customer(2, "(493)-313-3851", "John Doe", "test@gmail.com", "51 E Blvd", null, "N/A"),
+        Customer(3, "(294)-085-3311", "John Doe", "test@gmail.com", "51 E Blvd", null, "N/A"),
+    )
+
+    val invoices = listOf(
+        Invoice(
+            32451,
+            1345,
+            4200,
+            4620,
+            10,
+            Instant.now().toEpochMilli(),
+            listOf(InvoicedItem(1, 2)),
+            null)
     )
 }

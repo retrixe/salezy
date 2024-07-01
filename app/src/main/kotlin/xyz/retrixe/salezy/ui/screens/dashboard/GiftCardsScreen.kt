@@ -5,7 +5,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.*
@@ -40,6 +39,7 @@ fun GiftCardsScreen() {
                 text = { Text("Create Gift Card") }
             )
         }
+        // FIXME search for gift cards based on expired or active?...
         Box(Modifier.padding(8.dp))
         Card(Modifier.fillMaxSize()) {
             Column(Modifier.padding(24.dp)) {
@@ -47,7 +47,6 @@ fun GiftCardsScreen() {
 
                 Box(Modifier.padding(8.dp))
 
-                // FIXME: Edit, History and Delete options
                 Row(Modifier.fillMaxWidth()) {
                     // FIXME: Actions should have max width
                     HeadTableCell("Actions", .15f)
@@ -66,9 +65,6 @@ fun GiftCardsScreen() {
                                 // FIXME do something
                                 IconButton(onClick = { println("Edit") }) {
                                     Icon(imageVector = Icons.Filled.Edit, contentDescription = "Edit")
-                                }
-                                IconButton(onClick = { println("Delete") }) {
-                                    Icon(imageVector = Icons.Filled.Delete, contentDescription = "Delete")
                                 }
                                 IconButton(onClick = { println("History") }) {
                                     Icon(imageVector = Icons.Filled.History, contentDescription = "History")

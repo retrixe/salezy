@@ -11,21 +11,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import xyz.retrixe.salezy.api.entities.Invoice
-import xyz.retrixe.salezy.api.entities.InvoicedItem
+import xyz.retrixe.salezy.state.TempState
 import xyz.retrixe.salezy.ui.components.HeadTableCell
 import xyz.retrixe.salezy.ui.components.SearchField
 import xyz.retrixe.salezy.ui.components.TableCell
 import java.time.Instant
 
-// FIXME: Replace with actual API call
-val invoices = listOf(
-    Invoice(32451, 1345, 42, 45, Instant.now().toEpochMilli(), listOf(InvoicedItem(1, 2)), null)
-)
-
 @Composable
 fun TxnHistoryScreen() {
     var query by remember { mutableStateOf("") }
+    val invoices by remember { mutableStateOf(TempState.invoices) }
+
     val invoicesFiltered = invoices.filter { it.id.toString().contains(query, ignoreCase = true) } // FIXME fuzzy search
 
     Column(Modifier.fillMaxSize().padding(24.dp)) {
@@ -43,7 +39,6 @@ fun TxnHistoryScreen() {
 
                 Box(Modifier.padding(8.dp))
 
-                // FIXME: Edit, History and Delete options
                 Row(Modifier.fillMaxWidth()) {
                     HeadTableCell("ID", .15f)
                     HeadTableCell("Customer ID", .15f)
