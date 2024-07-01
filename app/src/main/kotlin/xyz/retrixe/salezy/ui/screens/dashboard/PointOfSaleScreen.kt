@@ -1,8 +1,10 @@
 package xyz.retrixe.salezy.ui.screens.dashboard
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -15,13 +17,16 @@ import androidx.compose.ui.input.key.*
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.launch
+import xyz.retrixe.salezy.api.entities.Invoice
 import xyz.retrixe.salezy.api.entities.InvoicedItem
 import xyz.retrixe.salezy.state.LocalSnackbarHostState
 import xyz.retrixe.salezy.state.TempState
 import xyz.retrixe.salezy.ui.components.HeadTableCell
 import xyz.retrixe.salezy.ui.components.TableCell
 import xyz.retrixe.salezy.ui.dialogs.AddEditCustomerDialog
+import java.time.Instant
 
 @Composable
 fun PointOfSaleScreen() {
@@ -75,6 +80,71 @@ fun PointOfSaleScreen() {
         initialValue = TempState.customers.find { it.id == customerId },
         onDismiss = { openEditCustomerDialog = false },
         onSubmit = { TempState.customers[TempState.customers.indexOfFirst { c -> c.id == customerId }] = it })
+
+    var openExistingCustomerDialog by remember { mutableStateOf(false) }
+    // FIXME: this is bad.. implement search function lol
+    AnimatedVisibility(openExistingCustomerDialog) {
+        Dialog(onDismissRequest = { openExistingCustomerDialog = false }) {
+            Card(
+                modifier = Modifier.wrapContentSize().width(420.dp).padding(16.dp),
+                shape = RoundedCornerShape(16.dp),
+            ) {
+                Column(
+                    Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    Text("Search for Customer", fontSize = 28.sp)
+                    LazyColumn {
+                        itemsIndexed(TempState.customers) { index, customer ->
+                            TextButton(onClick = {
+                                customerId = customer.id
+                                openExistingCustomerDialog = false
+                            }) {
+                                Text("${customer.name} (${customer.phone})")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // FIXME demo dialog
+    var openProceedPaymentDialog by remember { mutableStateOf(false) }
+    AnimatedVisibility(openProceedPaymentDialog) {
+        Dialog(onDismissRequest = { openProceedPaymentDialog = false }) {
+            Card(
+                modifier = Modifier.wrapContentSize().width(420.dp).padding(16.dp),
+                shape = RoundedCornerShape(16.dp),
+            ) {
+                Column(
+                    Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    Text("Payment", fontSize = 28.sp)
+                    val total = invoiceItems.sumOf { item ->
+                        TempState.inventoryItems.find { it.upc == item.id }!!.price * item.count }
+                    val totalWithTax = total + ((total / 100) * overrideTaxRateValue.toInt())
+                    Text("Total incl. tax: \$$totalWithTax")
+                    Button(onClick = {
+                        openProceedPaymentDialog = false
+                        TempState.invoices.add(Invoice(
+                            id = TempState.invoices.size + 1,
+                            customerId = customerId!!,
+                            items = invoiceItems,
+                            notes = notes,
+                            taxRate = overrideTaxRateValue.toInt(),
+                            beforeTaxCost = total,
+                            afterTaxCost = totalWithTax,
+                            issuedOn = Instant.now().toEpochMilli()
+                        ))
+                    }) {
+                        Text("Pay")
+                    }
+                }
+            }
+        }
+    }
 
     Row(Modifier.fillMaxSize().padding(24.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
         Card(Modifier.weight(1f).fillMaxHeight()) {
@@ -133,7 +203,7 @@ fun PointOfSaleScreen() {
             // FIXME long to decimal, also drop assert
             val total = invoiceItems.sumOf { item ->
                 TempState.inventoryItems.find { it.upc == item.id }!!.price * item.count }
-            Text("Total: \$$total", fontSize = 24.sp,
+            Text("Total excl tax: \$$total", fontSize = 24.sp,
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp))
         }
 
@@ -158,7 +228,7 @@ fun PointOfSaleScreen() {
                     }
                 } else {
                     Row(Modifier.fillMaxWidth(), Arrangement.spacedBy(12.dp)) {
-                        Button(onClick = { /* FIXME: Open customer search */ }, Modifier.weight(1f)) {
+                        Button(onClick = { openExistingCustomerDialog = true }, Modifier.weight(1f)) {
                             Text("Returning Customer")
                         }
                         Button(onClick = { openNewCustomerDialog = true }, Modifier.weight(1f)) {
@@ -183,7 +253,15 @@ fun PointOfSaleScreen() {
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
 
-                Button(onClick = { /* FIXME */ }) {
+                Button(onClick = {
+                    // FIXME better validation
+                    if (customerId == null) {
+                        coroutineScope.launch { snackbarHostState.showSnackbar(
+                            message = "Please select a customer.",
+                            actionLabel = "Hide",
+                            duration = SnackbarDuration.Short) }
+                    } else openProceedPaymentDialog = true
+                }) {
                     Text("Proceed to payment")
                 }
             } }
