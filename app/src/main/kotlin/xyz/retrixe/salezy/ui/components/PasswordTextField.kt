@@ -38,8 +38,10 @@ fun PasswordTextField(
         trailingIcon = {
             val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
             val description = if (passwordVisible) "Hide password" else "Show password"
-            IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                Icon(imageVector = image, contentDescription = description)
+            PlainTooltipBox(description) {
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(imageVector = image, contentDescription = description)
+                }
             }
         },
         visualTransformation = if (passwordVisible)

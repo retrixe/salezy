@@ -11,7 +11,6 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
@@ -26,9 +25,9 @@ import xyz.retrixe.salezy.api.Api
 import xyz.retrixe.salezy.state.ConfigurationState
 import xyz.retrixe.salezy.state.defaultConfiguration
 import xyz.retrixe.salezy.ui.components.PasswordTextField
+import xyz.retrixe.salezy.ui.components.PlainTooltipBox
 import kotlin.system.exitProcess
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun LoginScreen(
     setScreen: (Screens) -> Unit,
@@ -55,9 +54,10 @@ fun LoginScreen(
     val instanceUrl = ConfigurationState.current.instanceUrl
     LaunchedEffect(instanceUrl) {
         setTopBar("Salezy ❯ Login") { // TODO (low priority): This interferes with transitions.
-            // TODO (low priority): PlainTooltipBox
-            IconButton(onClick = { dialogOpen = true; dialogValue = instanceUrl }) {
-                Icon(imageVector = Icons.Filled.Settings, "Settings")
+            PlainTooltipBox("Settings") {
+                IconButton(onClick = { dialogOpen = true; dialogValue = instanceUrl }) {
+                    Icon(imageVector = Icons.Filled.Settings, "Settings")
+                }
             }
         }
     }

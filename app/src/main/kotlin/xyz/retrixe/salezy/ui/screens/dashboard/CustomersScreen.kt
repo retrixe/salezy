@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import xyz.retrixe.salezy.state.TempState
 import xyz.retrixe.salezy.ui.components.HeadTableCell
+import xyz.retrixe.salezy.ui.components.PlainTooltipBox
 import xyz.retrixe.salezy.ui.components.SearchField
 import xyz.retrixe.salezy.ui.components.TableCell
 import xyz.retrixe.salezy.ui.dialogs.AddEditCustomerDialog
@@ -83,11 +84,15 @@ fun CustomersScreen() {
                         Row(Modifier.fillMaxWidth()) {
                             Row(Modifier.weight(.15f)) {
                                 // FIXME do something
-                                IconButton(onClick = { openEditCustomerDialog = customer.id }) {
-                                    Icon(imageVector = Icons.Filled.Edit, contentDescription = "Edit")
+                                PlainTooltipBox("Edit") {
+                                    IconButton(onClick = { openEditCustomerDialog = customer.id }) {
+                                        Icon(imageVector = Icons.Filled.Edit, contentDescription = "Edit")
+                                    }
                                 }
-                                IconButton(onClick = { println("History") }) {
-                                    Icon(imageVector = Icons.Filled.History, contentDescription = "History")
+                                PlainTooltipBox("History") {
+                                    IconButton(onClick = { println("History") }) {
+                                        Icon(imageVector = Icons.Filled.History, contentDescription = "History")
+                                    }
                                 }
                             }
                             TableCell(text = customer.phone, weight = .15f)

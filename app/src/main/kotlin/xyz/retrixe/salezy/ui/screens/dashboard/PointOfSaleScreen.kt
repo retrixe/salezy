@@ -24,6 +24,7 @@ import xyz.retrixe.salezy.api.entities.InvoicedItem
 import xyz.retrixe.salezy.state.LocalSnackbarHostState
 import xyz.retrixe.salezy.state.TempState
 import xyz.retrixe.salezy.ui.components.HeadTableCell
+import xyz.retrixe.salezy.ui.components.PlainTooltipBox
 import xyz.retrixe.salezy.ui.components.TableCell
 import xyz.retrixe.salezy.ui.dialogs.AddEditCustomerDialog
 import xyz.retrixe.salezy.utils.asDecimal
@@ -163,17 +164,23 @@ fun PointOfSaleScreen() {
                     HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.inverseSurface)
                     Row(Modifier.fillMaxWidth()) {
                         Row(Modifier.weight(.3f)) {
-                            IconButton(onClick = { invoiceItems[index] = item.copy(count = item.count + 1) }) {
-                                Icon(imageVector = Icons.Filled.Add, contentDescription = "Add")
+                            PlainTooltipBox("Add") {
+                                IconButton(onClick = { invoiceItems[index] = item.copy(count = item.count + 1) }) {
+                                    Icon(imageVector = Icons.Filled.Add, contentDescription = "Add")
+                                }
                             }
-                            IconButton(onClick = {
-                                if (item.count == 1) invoiceItems.removeAt(index)
-                                else invoiceItems[index] = item.copy(count = item.count - 1)
-                            }) {
-                                Icon(imageVector = Icons.Filled.Remove, contentDescription = "Remove")
+                            PlainTooltipBox("Remove") {
+                                IconButton(onClick = {
+                                    if (item.count == 1) invoiceItems.removeAt(index)
+                                    else invoiceItems[index] = item.copy(count = item.count - 1)
+                                }) {
+                                    Icon(imageVector = Icons.Filled.Remove, contentDescription = "Remove")
+                                }
                             }
-                            IconButton(onClick = { invoiceItems.removeAt(index) }) {
-                                Icon(imageVector = Icons.Filled.Delete, contentDescription = "Delete")
+                            PlainTooltipBox("Delete") {
+                                IconButton(onClick = { invoiceItems.removeAt(index) }) {
+                                    Icon(imageVector = Icons.Filled.Delete, contentDescription = "Delete")
+                                }
                             }
                         }
                         // FIXME truncate if too long

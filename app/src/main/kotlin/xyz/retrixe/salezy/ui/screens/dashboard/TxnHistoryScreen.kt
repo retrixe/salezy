@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import xyz.retrixe.salezy.state.TempState
 import xyz.retrixe.salezy.ui.components.HeadTableCell
+import xyz.retrixe.salezy.ui.components.PlainTooltipBox
 import xyz.retrixe.salezy.ui.components.SearchField
 import xyz.retrixe.salezy.ui.components.TableCell
 import xyz.retrixe.salezy.utils.asDecimal
@@ -65,8 +66,10 @@ fun TxnHistoryScreen() {
                             TableCell(text = invoice.items.size.toString(), weight = .1f)
                             // FIXME show details
                             Row(Modifier.weight(.07f)) {
-                                IconButton(onClick = { println("Info") }) {
-                                    Icon(imageVector = Icons.Filled.ArrowCircleRight, contentDescription = "Info")
+                                PlainTooltipBox("Info") {
+                                    IconButton(onClick = { println("Info") }) {
+                                        Icon(imageVector = Icons.Filled.ArrowCircleRight, contentDescription = "Info")
+                                    }
                                 }
                             }
                         }
