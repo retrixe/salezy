@@ -34,7 +34,14 @@ fun AddEditCustomerDialog(
     var notes by remember { mutableStateOf(initialValue?.notes ?: "") }
 
     fun onSave() {
-        onSubmit(Customer(id, phone, name, email, address, taxIdNumber, notes))
+        onSubmit(Customer(
+            id,
+            phone,
+            name.ifBlank { null },
+            email.ifBlank { null },
+            address.ifBlank { null },
+            taxIdNumber.ifBlank { null },
+            notes.ifBlank { null }))
         onDismiss()
     }
 

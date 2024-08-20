@@ -15,6 +15,7 @@ import xyz.retrixe.salezy.state.TempState
 import xyz.retrixe.salezy.ui.components.HeadTableCell
 import xyz.retrixe.salezy.ui.components.SearchField
 import xyz.retrixe.salezy.ui.components.TableCell
+import xyz.retrixe.salezy.utils.asDecimal
 import java.time.Instant
 
 @Composable
@@ -59,8 +60,8 @@ fun TxnHistoryScreen() {
                             TableCell(text = invoice.id.toString(), weight = .15f)
                             TableCell(text = invoice.customerId.toString(), weight = .15f)
                             TableCell(text = Instant.ofEpochMilli(invoice.issuedOn).toString(), weight = .23f)
-                            TableCell(text = "\$${invoice.beforeTaxCost}", weight = .15f)
-                            TableCell(text = "\$${invoice.afterTaxCost}", weight = .15f)
+                            TableCell(text = "\$${invoice.beforeTaxCost.asDecimal()}", weight = .15f)
+                            TableCell(text = "\$${invoice.afterTaxCost.asDecimal()}", weight = .15f)
                             TableCell(text = invoice.items.size.toString(), weight = .1f)
                             // FIXME show details
                             Row(Modifier.weight(.07f)) {

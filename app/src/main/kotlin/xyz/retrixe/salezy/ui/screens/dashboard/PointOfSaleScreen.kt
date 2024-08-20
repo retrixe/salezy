@@ -26,6 +26,7 @@ import xyz.retrixe.salezy.state.TempState
 import xyz.retrixe.salezy.ui.components.HeadTableCell
 import xyz.retrixe.salezy.ui.components.TableCell
 import xyz.retrixe.salezy.ui.dialogs.AddEditCustomerDialog
+import xyz.retrixe.salezy.utils.asDecimal
 import java.time.Instant
 
 @Composable
@@ -100,7 +101,7 @@ fun PointOfSaleScreen() {
                                 customerId = customer.id
                                 openExistingCustomerDialog = false
                             }) {
-                                Text("${customer.name} (${customer.phone})")
+                                Text("${customer.name ?: "N/A"} (${customer.phone})")
                             }
                         }
                     }
@@ -124,15 +125,16 @@ fun PointOfSaleScreen() {
                     Text("Payment", fontSize = 28.sp)
                     val total = invoiceItems.sumOf { item ->
                         TempState.inventoryItems.find { it.upc == item.id }!!.price * item.count }
-                    val totalWithTax = total + ((total / 100) * overrideTaxRateValue.toInt())
-                    Text("Total incl. tax: \$$totalWithTax")
+                    val tax = (total * overrideTaxRateValue.toInt()) / 100
+                    val totalWithTax = total + tax
+                    Text("Total incl. tax: \$${totalWithTax.asDecimal()}")
                     Button(onClick = {
                         openProceedPaymentDialog = false
                         TempState.invoices.add(Invoice(
                             id = TempState.invoices.size + 1,
                             customerId = customerId!!,
                             items = invoiceItems,
-                            notes = notes,
+                            notes = notes.ifBlank { null },
                             taxRate = overrideTaxRateValue.toInt(),
                             beforeTaxCost = total,
                             afterTaxCost = totalWithTax,
@@ -179,8 +181,7 @@ fun PointOfSaleScreen() {
                         val inventoryItem = TempState.inventoryItems.find { it.upc == item.id }!! // FIXME: Drop assert
                         TableCell(text = inventoryItem.name, weight = .3f)
                         TableCell(text = inventoryItem.upc.toString(), weight = .2f)
-                        // FIXME long to decimal
-                        TableCell(text = "$${inventoryItem.price}", weight = .15f)
+                        TableCell(text = "$${inventoryItem.price.asDecimal()}", weight = .15f)
                         TableCell(text = item.count.toString(), weight = .1f)
                     }
                 }
@@ -200,10 +201,10 @@ fun PointOfSaleScreen() {
                         } else false
                     })
 
-            // FIXME long to decimal, also drop assert
+            // FIXME drop assert
             val total = invoiceItems.sumOf { item ->
                 TempState.inventoryItems.find { it.upc == item.id }!!.price * item.count }
-            Text("Total excl tax: \$$total", fontSize = 24.sp,
+            Text("Total excl tax: \$${total.asDecimal()}", fontSize = 24.sp,
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp))
         }
 
@@ -212,11 +213,11 @@ fun PointOfSaleScreen() {
                 Text("Customer Info", fontSize = 24.sp, modifier = Modifier.padding(bottom = 8.dp))
                 if (customerId != null) {
                     val customer = TempState.customers.find { it.id == customerId }!!
-                    Text("Name: ${customer.name}")
+                    Text("Name: ${customer.name ?: "N/A"}")
                     Text("Phone: ${customer.phone}")
-                    Text("Email: ${customer.email}")
-                    Text("Address: ${customer.address}")
-                    Text("Notes: ${customer.notes}")
+                    Text("Email: ${customer.email ?: "N/A"}")
+                    Text("Address: ${customer.address ?: "N/A"}")
+                    Text("Notes: ${customer.notes ?: "N/A"}")
                     // FIXME: shipping address
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         Button(onClick = { openEditCustomerDialog = true }) {

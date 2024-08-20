@@ -21,6 +21,7 @@ import xyz.retrixe.salezy.state.LocalSnackbarHostState
 import xyz.retrixe.salezy.state.TempState
 import xyz.retrixe.salezy.ui.components.SearchField
 import xyz.retrixe.salezy.ui.dialogs.AddEditItemDialog
+import xyz.retrixe.salezy.utils.asDecimal
 
 @Composable
 fun InventoryScreen() {
@@ -89,7 +90,7 @@ fun InventoryScreen() {
                             Column(Modifier.padding(8.dp)) {
                                 Text(item.name, fontSize = 20.sp)
                                 Text("UPC ${item.upc}", fontSize = 20.sp)
-                                Text("$${item.price} | ${item.quantity} in stock")
+                                Text("$${item.price.asDecimal()} | ${item.quantity} in stock")
                             }
                             if (item.imageUrl != null) KamelImage(
                                 modifier = Modifier.size(160.dp)

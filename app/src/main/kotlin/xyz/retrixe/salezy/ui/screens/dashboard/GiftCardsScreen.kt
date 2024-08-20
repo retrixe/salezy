@@ -17,6 +17,7 @@ import xyz.retrixe.salezy.state.TempState
 import xyz.retrixe.salezy.ui.components.HeadTableCell
 import xyz.retrixe.salezy.ui.components.SearchField
 import xyz.retrixe.salezy.ui.components.TableCell
+import xyz.retrixe.salezy.utils.asDecimal
 import java.time.Instant
 
 @Composable
@@ -74,9 +75,8 @@ fun GiftCardsScreen() {
                                 }
                             }
                             TableCell(text = item.id, weight = .15f)
-                            // FIXME long to decimal
-                            TableCell(text = item.issuedBalance.toString(), weight = .15f)
-                            TableCell(text = item.currentBalance.toString(), weight = .15f)
+                            TableCell(text = item.issuedBalance.asDecimal(), weight = .15f)
+                            TableCell(text = item.currentBalance.asDecimal(), weight = .15f)
                             // FIXME better formatting
                             TableCell(text = Instant.ofEpochMilli(item.issuedOn).toString(), weight = .2f)
                             TableCell(text = Instant.ofEpochMilli(item.expiresOn).toString(), weight = .2f)

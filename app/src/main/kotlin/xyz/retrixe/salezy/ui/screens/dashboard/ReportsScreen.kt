@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import xyz.retrixe.salezy.state.TempState
+import xyz.retrixe.salezy.utils.asDecimal
 
 // FIXME: Replace with actual API call
 
@@ -42,7 +43,7 @@ fun ReportsScreen() {
                     Text("Net Revenue (excl tax)", fontSize = 24.sp)
                     Text(
                         "$${TempState.invoices
-                            .fold(0L) { acc, invoice -> acc + invoice.beforeTaxCost }}",
+                            .fold(0L) { acc, invoice -> acc + invoice.beforeTaxCost }.asDecimal()}",
                         fontSize = 40.sp)
                 } } }
                 item { Card { Column(Modifier.padding(16.dp)) {
