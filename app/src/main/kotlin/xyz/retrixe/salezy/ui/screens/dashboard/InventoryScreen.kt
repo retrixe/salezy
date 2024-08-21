@@ -46,8 +46,8 @@ fun InventoryScreen() {
         onSubmit = { TempState.inventoryItems.add(it); inventoryItems = TempState.inventoryItems })
 
     var openEditItemDialog by remember { mutableStateOf<Long?>(null) }
-    if (openEditItemDialog != null) AddEditItemDialog( // FIXME ugh
-        open = true,
+    AddEditItemDialog(
+        open = openEditItemDialog != null,
         label = "Edit Item",
         initialValue = inventoryItems.find { it.upc == openEditItemDialog },
         onDismiss = { openEditItemDialog = null },

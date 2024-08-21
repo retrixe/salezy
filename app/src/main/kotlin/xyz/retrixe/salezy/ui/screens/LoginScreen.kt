@@ -149,7 +149,7 @@ fun LoginScreen(
         Row(Modifier.width(width).padding(top = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Button(onClick = { exitProcess(0) }) { Text("Quit") }
+            FilledTonalButton(onClick = { exitProcess(0) }) { Text("Quit") }
 
             Button(modifier = Modifier.focusRequester(loginButtonFocus),
                 onClick = { login() },

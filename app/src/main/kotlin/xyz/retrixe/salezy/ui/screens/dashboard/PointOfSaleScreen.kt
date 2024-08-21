@@ -76,7 +76,7 @@ fun PointOfSaleScreen() {
         onSubmit = { TempState.customers.add(it); customerId = it.id })
 
     var openEditCustomerDialog by remember { mutableStateOf(false) }
-    if (openEditCustomerDialog) AddEditCustomerDialog( // FIXME dirty hack, remove if statement
+    AddEditCustomerDialog(
         open = openEditCustomerDialog,
         label = "Edit Customer",
         initialValue = TempState.customers.find { it.id == customerId },

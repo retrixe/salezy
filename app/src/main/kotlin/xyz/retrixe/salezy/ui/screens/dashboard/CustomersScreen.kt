@@ -36,14 +36,15 @@ fun CustomersScreen() {
         onSubmit = { TempState.customers.add(it); customers = TempState.customers })
 
     var openEditCustomerDialog by remember { mutableStateOf<Int?>(null) }
-    if (openEditCustomerDialog != null) AddEditCustomerDialog( // FIXME ugh
-        open = true,
-        label = "Edit Item",
+    AddEditCustomerDialog(
+        open = openEditCustomerDialog != null,
+        label = "Edit Customer",
         initialValue = customers.find { it.id == openEditCustomerDialog },
         onDismiss = { openEditCustomerDialog = null },
         onSubmit = { TempState.customers[TempState.customers.indexOfFirst {
             customer -> customer.id == openEditCustomerDialog
-        }] = it })
+        }] = it }
+    )
 
     Column(Modifier.fillMaxSize().padding(24.dp)) {
         Row(
