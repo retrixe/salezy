@@ -66,7 +66,6 @@ fun PointOfSaleScreen() {
         addInvoiceItemField = ""
     }
 
-    // FIXME can this be unified into one state?
     var openNewCustomerDialog by remember { mutableStateOf(false) }
     AddEditCustomerDialog(
         open = openNewCustomerDialog,

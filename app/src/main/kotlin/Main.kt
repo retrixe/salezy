@@ -23,6 +23,10 @@ enum class Screens {
     DASHBOARD
 }
 
+// FIXME: in the point of sale: make sure to add the SDU - the right panels for customer info and notes etc, make them smaller, make the items list larger and easier to see
+// FIXME: in inventory: make sure to add ability to spcifiy price details, such as cost of item, profit of item, etc, add these to reports
+// FIXME: in reports separate the sales from profit, so the amount sold, vs profit from it
+
 @Composable
 @Preview
 @OptIn(ExperimentalMaterial3Api::class)
