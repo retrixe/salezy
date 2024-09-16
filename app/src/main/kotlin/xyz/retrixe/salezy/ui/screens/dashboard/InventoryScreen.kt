@@ -36,7 +36,6 @@ fun InventoryScreen() {
                 it.upc.toString().contains(query, ignoreCase = true)
     } // FIXME fuzzy search
 
-    // FIXME single dialog call would be nice.
     var openNewItemDialog by remember { mutableStateOf(false) }
     AddEditItemDialog(
         open = openNewItemDialog,

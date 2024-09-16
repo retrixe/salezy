@@ -17,6 +17,8 @@ import xyz.retrixe.salezy.ui.components.PlainTooltipBox
 import xyz.retrixe.salezy.ui.components.SearchField
 import xyz.retrixe.salezy.ui.components.TableCell
 import xyz.retrixe.salezy.utils.asDecimal
+import xyz.retrixe.salezy.utils.formatted
+import xyz.retrixe.salezy.utils.toInstant
 import java.time.Instant
 
 @Composable
@@ -45,27 +47,27 @@ fun TxnHistoryScreen() {
                 Box(Modifier.padding(8.dp))
 
                 Row(Modifier.fillMaxWidth()) {
-                    HeadTableCell("ID", .15f)
-                    HeadTableCell("Customer ID", .15f)
-                    HeadTableCell("Date", .23f)
+                    HeadTableCell("ID", .2f)
+                    HeadTableCell("Customer ID", .2f)
+                    HeadTableCell("Date/time", .2f)
                     HeadTableCell("Cost (pre-tax)", .15f)
                     HeadTableCell("Cost (post-tax)", .15f)
                     HeadTableCell("Item qty", .1f)
-                    HeadTableCell("Details", .07f)
+                    HeadTableCell("Details", 80.dp)
                 }
                 LazyColumn {
                     // item {}
                     items(invoicesFiltered) { invoice ->
                         HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.inverseSurface)
                         Row(Modifier.fillMaxWidth()) {
-                            TableCell(text = invoice.id.toString(), weight = .15f)
-                            TableCell(text = invoice.customerId.toString(), weight = .15f)
-                            TableCell(text = Instant.ofEpochMilli(invoice.issuedOn).toString(), weight = .23f)
+                            TableCell(text = invoice.id.toString(), weight = .2f)
+                            TableCell(text = invoice.customerId.toString(), weight = .2f)
+                            TableCell(text = invoice.issuedOn.toInstant().formatted(), weight = .2f)
                             TableCell(text = "\$${invoice.beforeTaxCost.asDecimal()}", weight = .15f)
                             TableCell(text = "\$${invoice.afterTaxCost.asDecimal()}", weight = .15f)
                             TableCell(text = invoice.items.size.toString(), weight = .1f)
                             // FIXME show details
-                            Row(Modifier.weight(.07f)) {
+                            Row(Modifier.widthIn(80.dp)) {
                                 PlainTooltipBox("Info") {
                                     IconButton(onClick = { println("Info") }) {
                                         Icon(imageVector = Icons.Filled.ArrowCircleRight, contentDescription = "Info")

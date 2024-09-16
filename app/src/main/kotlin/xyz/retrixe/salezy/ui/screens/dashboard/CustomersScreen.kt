@@ -70,20 +70,18 @@ fun CustomersScreen() {
                 Box(Modifier.padding(8.dp))
 
                 Row(Modifier.fillMaxWidth()) {
-                    // FIXME: Actions should have max width
-                    HeadTableCell("Actions", .15f)
-                    HeadTableCell("Phone No", .15f)
+                    HeadTableCell("Actions", 96.dp)
+                    HeadTableCell("Phone No", .1f)
                     HeadTableCell("Name", .15f)
                     HeadTableCell("Email", .15f)
-                    HeadTableCell("Address", .2f)
-                    HeadTableCell("Notes", .2f)
+                    HeadTableCell("Address", .3f)
+                    HeadTableCell("Notes", .3f)
                 }
                 LazyColumn {
-                    // item {}
                     items(customersFiltered) { customer ->
                         HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.inverseSurface)
                         Row(Modifier.fillMaxWidth()) {
-                            Row(Modifier.weight(.15f)) {
+                            Row(Modifier.widthIn(min = 96.dp)) {
                                 // FIXME do something
                                 PlainTooltipBox("Edit") {
                                     IconButton(onClick = { openEditCustomerDialog = customer.id }) {
@@ -96,12 +94,11 @@ fun CustomersScreen() {
                                     }
                                 }
                             }
-                            TableCell(text = customer.phone, weight = .15f)
-                            // FIXME truncate if too long
+                            TableCell(text = customer.phone, weight = .1f)
                             TableCell(text = customer.name ?: "N/A", weight = .15f)
                             TableCell(text = customer.email ?: "N/A", weight = .15f)
-                            TableCell(text = customer.address ?: "N/A", weight = .2f)
-                            TableCell(text = customer.notes ?: "N/A", weight = .2f)
+                            TableCell(text = customer.address ?: "N/A", weight = .3f)
+                            TableCell(text = customer.notes ?: "N/A", weight = .3f)
                         }
                     }
                 }

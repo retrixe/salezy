@@ -149,12 +149,12 @@ fun PointOfSaleScreen() {
     }
 
     Row(Modifier.fillMaxSize().padding(24.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-        Card(Modifier.weight(1f).fillMaxHeight()) {
+        Card(Modifier.weight(2f).fillMaxHeight()) {
             Row(Modifier.fillMaxWidth()) {
-                // FIXME: Actions should have max width
-                HeadTableCell("Actions", .3f)
-                HeadTableCell("Name", .3f)
-                HeadTableCell("UPC", .2f)
+                HeadTableCell("Actions", 144.dp)
+                HeadTableCell("Name", .25f)
+                HeadTableCell("UPC", .25f)
+                HeadTableCell("SKU", .25f)
                 HeadTableCell("Price", .15f)
                 HeadTableCell("Qty", .1f)
             }
@@ -162,7 +162,7 @@ fun PointOfSaleScreen() {
                 itemsIndexed(invoiceItems) { index, item ->
                     HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.inverseSurface)
                     Row(Modifier.fillMaxWidth()) {
-                        Row(Modifier.weight(.3f)) {
+                        Row(Modifier.widthIn(min = 144.dp)) {
                             PlainTooltipBox("Add") {
                                 IconButton(onClick = { invoiceItems[index] = item.copy(count = item.count + 1) }) {
                                     Icon(imageVector = Icons.Filled.Add, contentDescription = "Add")
@@ -182,11 +182,11 @@ fun PointOfSaleScreen() {
                                 }
                             }
                         }
-                        // FIXME truncate if too long
                         // FIXME item out of stock checks
                         val inventoryItem = TempState.inventoryItems.find { it.upc == item.id }!! // FIXME: Drop assert
-                        TableCell(text = inventoryItem.name, weight = .3f)
-                        TableCell(text = inventoryItem.upc.toString(), weight = .2f)
+                        TableCell(text = inventoryItem.name, weight = .25f)
+                        TableCell(text = inventoryItem.upc.toString(), weight = .25f)
+                        TableCell(text = inventoryItem.sku, weight = .25f)
                         TableCell(text = "$${inventoryItem.price.asDecimal()}", weight = .15f)
                         TableCell(text = item.count.toString(), weight = .1f)
                     }
@@ -235,8 +235,8 @@ fun PointOfSaleScreen() {
                     }
                 } else {
                     Row(Modifier.fillMaxWidth(), Arrangement.spacedBy(12.dp)) {
-                        Button(onClick = { openExistingCustomerDialog = true }, Modifier.weight(1f)) {
-                            Text("Returning Customer")
+                        OutlinedButton(onClick = { openExistingCustomerDialog = true }, Modifier.weight(1f)) {
+                            Text("Return Customer")
                         }
                         Button(onClick = { openNewCustomerDialog = true }, Modifier.weight(1f)) {
                             Text("New Customer")

@@ -19,6 +19,8 @@ import xyz.retrixe.salezy.ui.components.PlainTooltipBox
 import xyz.retrixe.salezy.ui.components.SearchField
 import xyz.retrixe.salezy.ui.components.TableCell
 import xyz.retrixe.salezy.utils.asDecimal
+import xyz.retrixe.salezy.utils.toInstant
+import xyz.retrixe.salezy.utils.formatted
 import java.time.Instant
 
 @Composable
@@ -53,11 +55,10 @@ fun GiftCardsScreen() {
                 Box(Modifier.padding(8.dp))
 
                 Row(Modifier.fillMaxWidth()) {
-                    // FIXME: Actions should have max width
-                    HeadTableCell("Actions", .15f)
-                    HeadTableCell("ID", .15f)
-                    HeadTableCell("Issued balance", .15f)
-                    HeadTableCell("Current balance", .15f)
+                    HeadTableCell("Actions", 96.dp)
+                    HeadTableCell("ID", .2f)
+                    HeadTableCell("Issued balance", .2f)
+                    HeadTableCell("Current balance", .2f)
                     HeadTableCell("Issued on", .2f)
                     HeadTableCell("Expires on", .2f)
                 }
@@ -66,7 +67,7 @@ fun GiftCardsScreen() {
                     items(giftCardsFiltered) { item ->
                         HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.inverseSurface)
                         Row(Modifier.fillMaxWidth()) {
-                            Row(Modifier.weight(.15f)) {
+                            Row(Modifier.widthIn(min = 96.dp)) {
                                 // FIXME do something
                                 PlainTooltipBox("Edit") {
                                     IconButton(onClick = { println("Edit") }) {
@@ -79,12 +80,11 @@ fun GiftCardsScreen() {
                                     }
                                 }
                             }
-                            TableCell(text = item.id, weight = .15f)
-                            TableCell(text = item.issuedBalance.asDecimal(), weight = .15f)
-                            TableCell(text = item.currentBalance.asDecimal(), weight = .15f)
-                            // FIXME better formatting
-                            TableCell(text = Instant.ofEpochMilli(item.issuedOn).toString(), weight = .2f)
-                            TableCell(text = Instant.ofEpochMilli(item.expiresOn).toString(), weight = .2f)
+                            TableCell(text = item.id, weight = .2f)
+                            TableCell(text = item.issuedBalance.asDecimal(), weight = .2f)
+                            TableCell(text = item.currentBalance.asDecimal(), weight = .2f)
+                            TableCell(text = item.issuedOn.toInstant().formatted(), weight = .2f)
+                            TableCell(text = item.expiresOn.toInstant().formatted(), weight = .2f)
                         }
                     }
                 }
