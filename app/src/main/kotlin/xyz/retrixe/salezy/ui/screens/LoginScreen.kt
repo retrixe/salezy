@@ -22,8 +22,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.launch
 import xyz.retrixe.salezy.api.Api
-import xyz.retrixe.salezy.state.ConfigurationState
-import xyz.retrixe.salezy.state.defaultConfiguration
+import xyz.retrixe.salezy.state.LocalConfiguration
+import xyz.retrixe.salezy.state.LocalConfigurationState
+import xyz.retrixe.salezy.state.RemoteSettings
 import xyz.retrixe.salezy.ui.components.PasswordTextField
 import xyz.retrixe.salezy.ui.components.PlainTooltipBox
 import kotlin.system.exitProcess
@@ -31,6 +32,7 @@ import kotlin.system.exitProcess
 @Composable
 fun LoginScreen(
     setScreen: (Screens) -> Unit,
+    setRemoteSettings: (RemoteSettings) -> Unit,
     setTopBar: (String, (@Composable () -> Unit)?) -> Unit,
     overrideInstanceUrl: (String) -> Unit
 ) {
@@ -45,13 +47,14 @@ fun LoginScreen(
     fun login() = scope.launch {
         loadingOrError = null
         try {
+            // FIXME: Retrieve remote settings and set them too
             Api.instance.token = Api.instance.login(username, password)
             setScreen(Screens.DASHBOARD)
             loadingOrError = ""
         } catch (e: Exception) { loadingOrError = e.message }
     }
 
-    val instanceUrl = ConfigurationState.current.instanceUrl
+    val instanceUrl = LocalConfigurationState.current.instanceUrl
     LaunchedEffect(instanceUrl) {
         setTopBar("Salezy ❯ Login") { // TODO (low priority): This interferes with transitions.
             PlainTooltipBox("Settings") {
@@ -92,7 +95,7 @@ fun LoginScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
                         TextButton(
-                            onClick = { dialogValue = defaultConfiguration.instanceUrl },
+                            onClick = { dialogValue = LocalConfiguration.default.instanceUrl },
                             modifier = Modifier.padding(8.dp),
                         ) {
                             Text("Reset to Default")

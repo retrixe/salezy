@@ -13,16 +13,16 @@ import java.io.File
 import java.io.IOException
 
 @Serializable
-data class Configuration(
+data class LocalConfiguration(
     val instanceUrl: String
-)
+) {companion object {
+    @OptIn(ExperimentalResourceApi::class)
+    val default = Json.decodeFromString<LocalConfiguration>(runBlocking {
+        Res.readBytes("files/config.json").decodeToString()
+    })
+}}
 
-val ConfigurationState = compositionLocalOf { defaultConfiguration }
-
-@OptIn(ExperimentalResourceApi::class)
-val defaultConfiguration = Json.decodeFromString<Configuration>(runBlocking {
-    Res.readBytes("files/config.json").decodeToString()
-})
+val LocalConfigurationState = compositionLocalOf { LocalConfiguration.default }
 
 // If all this becomes unwieldy at some point, consider moving it to `storage` package.
 val userConfigFolder = if (System.getProperty("os.name").startsWith("Windows", true)) {
@@ -47,10 +47,10 @@ suspend fun configurationFile(): File = withContext(Dispatchers.IO) {
     }
 }
 
-suspend fun loadConfiguration(): Configuration = withContext(Dispatchers.IO) {
-    Json.decodeFromString<Configuration>(configurationFile().readText())
+suspend fun loadConfiguration(): LocalConfiguration = withContext(Dispatchers.IO) {
+    Json.decodeFromString<LocalConfiguration>(configurationFile().readText())
 }
 
-suspend fun saveConfiguration(configuration: Configuration) = withContext(Dispatchers.IO) {
+suspend fun saveConfiguration(configuration: LocalConfiguration) = withContext(Dispatchers.IO) {
     configurationFile().writeText(Json.encodeToString(configuration))
 }

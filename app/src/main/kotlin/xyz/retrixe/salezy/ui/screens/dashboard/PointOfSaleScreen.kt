@@ -253,6 +253,7 @@ fun PointOfSaleScreen() {
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                     modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp).weight(1f))
 
+                // FIXME: Use string
                 OutlinedTextField(value = overrideTaxRateValue.toString(),
                     onValueChange = { overrideTaxRateValue = it.toFloatOrNull() ?: overrideTaxRateValue },
                     label = { Text("Override tax rate") },

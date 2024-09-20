@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import xyz.retrixe.salezy.state.RemoteSettings
 import xyz.retrixe.salezy.ui.screens.dashboard.*
 
 enum class DashboardScreens(val title: String, val icon: ImageVector) {
@@ -25,6 +26,7 @@ enum class DashboardScreens(val title: String, val icon: ImageVector) {
 @Composable
 fun DashboardScreen(
     logout: () -> Unit,
+    setRemoteSettings: (RemoteSettings) -> Unit,
     setTopBar: (Pair<String, (@Composable () -> Unit)>?) -> Unit
 ) {
     setTopBar(null)
@@ -60,7 +62,7 @@ fun DashboardScreen(
             DashboardScreens.CUSTOMERS -> CustomersScreen()
             DashboardScreens.GIFT_CARDS -> GiftCardsScreen()
             DashboardScreens.REPORTS -> ReportsScreen()
-            DashboardScreens.SETTINGS -> SettingsScreen()
+            DashboardScreens.SETTINGS -> SettingsScreen(setRemoteSettings)
         } }
     }
 }

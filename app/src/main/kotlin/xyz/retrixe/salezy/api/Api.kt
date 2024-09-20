@@ -10,7 +10,7 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import xyz.retrixe.salezy.state.defaultConfiguration
+import xyz.retrixe.salezy.state.LocalConfiguration
 
 class Api {
     companion object {
@@ -18,7 +18,7 @@ class Api {
     }
 
     var token = ""
-    var url = defaultConfiguration.instanceUrl
+    var url = LocalConfiguration.default.instanceUrl
     private val client = HttpClient(Java) {
         install(ContentNegotiation) {
             json(Json)
