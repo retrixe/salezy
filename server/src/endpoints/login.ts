@@ -13,7 +13,7 @@ const loginHandler: RouteHandlerMethod = async (request, reply) => {
     reply.statusCode = 400
     return { error: 'Missing username and/or password!' }
   }
-  const [row]: [{ password: string }] =
+  const [row]: [{ password: string }?] =
     await sql`SELECT password FROM users WHERE username = ${username} LIMIT 1;`
   if (!row || !(await verify(row.password, password))) {
     reply.statusCode = 401

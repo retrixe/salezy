@@ -4,7 +4,7 @@ import loginHandler from './endpoints/login.js'
 
 const server = fastify({ logger: true })
 
-server.get('/', async (request, reply) => ({ hello: 'world' }))
+server.get('/', () => ({ hello: 'world' }))
 
 server.post('/login', loginHandler)
 
@@ -12,5 +12,5 @@ try {
   await server.listen({ port: config.port })
 } catch (err) {
   server.log.error(err)
-  process.exit(1)
+  process.exitCode = 1
 }

@@ -25,26 +25,26 @@
   },
   "homepage": "https://github.com/retrixe/salezy#readme",
   "dependencies": {
-    "argon2": "^0.40.1",
-    "fastify": "^4.26.0",
+    "argon2": "^0.41.1",
+    "fastify": "^5.0.0",
     "jsonwebtoken": "^9.0.2",
-    "postgres": "^3.4.3"
+    "postgres": "^3.4.4"
   },
   "devDependencies": {
-    "@tsconfig/node20": "^20.1.2",
-    "@types/jsonwebtoken": "^9",
-    "@types/node": "^20.11.14",
+    "@tsconfig/node20": "^20.1.4",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/node": "^22.5.5",
     "@typescript-eslint/eslint-plugin": "^6.20.0",
     "@typescript-eslint/parser": "^6.20.0",
-    "eslint": "^8.56.0",
+    "eslint": "^8.57.1",
     "eslint-config-prettier": "^9.1.0",
     "eslint-config-standard-with-typescript": "^43.0.1",
-    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-import": "^2.30.0",
     "eslint-plugin-n": "^16.6.2",
     "eslint-plugin-prettier": "^5.2.1",
-    "eslint-plugin-promise": "^6.1.1",
-    "husky": "^9.0.7",
-    "prettier": "^3.2.4",
+    "eslint-plugin-promise": "^6.6.0",
+    "husky": "^9.1.6",
+    "prettier": "^3.3.3",
     "typescript": "^5.3.3"
   }
 }
