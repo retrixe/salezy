@@ -4,7 +4,7 @@ import { verify } from 'argon2'
 import { jwtSecret } from '../config.js'
 import sql from '../db.js'
 
-const loginHandler: RouteHandlerMethod = async (request, reply) => {
+const postLoginHandler: RouteHandlerMethod = async (request, reply) => {
   const { username, password } = (request.body ?? {}) as {
     username?: string
     password?: string
@@ -33,4 +33,4 @@ const loginHandler: RouteHandlerMethod = async (request, reply) => {
   return { token }
 }
 
-export default loginHandler
+export default postLoginHandler

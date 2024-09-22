@@ -30,7 +30,7 @@ enum class Screens {
 @OptIn(ExperimentalMaterial3Api::class)
 fun App() {
     val snackbarHostState = remember { SnackbarHostState() }
-    var screen by remember { mutableStateOf(Screens.DASHBOARD) } // FIXME: This is just for testing....
+    var screen by remember { mutableStateOf(Screens.LOGIN) }
     var topBar by remember { mutableStateOf<Pair<String, (@Composable () -> Unit)?>?>(null) }
     var remoteSettings by remember { mutableStateOf(RemoteSettings.default) }
     var localConfiguration by remember { mutableStateOf(LocalConfiguration.default) }

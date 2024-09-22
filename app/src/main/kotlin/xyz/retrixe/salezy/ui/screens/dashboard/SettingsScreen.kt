@@ -13,16 +13,45 @@ import androidx.compose.ui.input.key.*
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
+import xyz.retrixe.salezy.api.Api
+import xyz.retrixe.salezy.state.LocalSnackbarHostState
 import xyz.retrixe.salezy.state.RemoteSettings
 import xyz.retrixe.salezy.state.RemoteSettingsState
+import xyz.retrixe.salezy.utils.asDecimal
+import xyz.retrixe.salezy.utils.toDecimalLong
 
 @Composable
 fun SettingsScreen(setRemoteSettings: (RemoteSettings) -> Unit) {
-    val remoteSettings by remember { mutableStateOf(RemoteSettings.default) }
+    val coroutineScope = rememberCoroutineScope()
+    val snackbarHostState = LocalSnackbarHostState.current
+    val remoteSettings = RemoteSettingsState.current
 
-    var taxRateValue by remember { mutableStateOf(20F) }
+    var taxRate by remember { mutableStateOf(Pair("", "")) }
+    LaunchedEffect(Unit) {
+        taxRate = Pair(RemoteSettings.default.taxRate.asDecimal(), "")
+    }
 
-    // FIXME: Tax rate configuration server-side
+    val changed =
+        taxRate.first.isEmpty() || taxRate.first.toDecimalLong() != remoteSettings.taxRate
+
+    fun onSave() = coroutineScope.launch {
+        if (taxRate.first.isBlank()) taxRate = Pair(taxRate.first, "No tax rate provided!")
+        try {
+            val newSettings = RemoteSettings(
+                if (taxRate.second.isEmpty()) taxRate.first.toDecimalLong() else return@launch
+            )
+            Api.instance.postSettings(newSettings)
+            setRemoteSettings(newSettings)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            snackbarHostState.showSnackbar(
+                message = "Failed to save settings! ${e.message}",
+                actionLabel = "Hide",
+                duration = SnackbarDuration.Long)
+        }
+    }
+
     Column(Modifier.fillMaxSize().padding(24.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -30,8 +59,8 @@ fun SettingsScreen(setRemoteSettings: (RemoteSettings) -> Unit) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text("Settings", fontSize = 24.sp)
-            if (remoteSettings != RemoteSettingsState.current) ExtendedFloatingActionButton(
-                onClick = { println("Save Changes") }, // FIXME: save changes to API, change compositionLocal
+            if (changed) ExtendedFloatingActionButton(
+                onClick = { onSave() },
                 icon = { Icon(imageVector = Icons.Filled.Save, "Save Changes") },
                 text = { Text("Save Changes") }
             )
@@ -39,12 +68,21 @@ fun SettingsScreen(setRemoteSettings: (RemoteSettings) -> Unit) {
         Box(Modifier.padding(8.dp))
         Card(Modifier.fillMaxSize()) {
             Column(Modifier.padding(24.dp)) {
-                OutlinedTextField(value = taxRateValue.toString(),
-                    onValueChange = { taxRateValue = it.toFloatOrNull() ?: taxRateValue },
+                OutlinedTextField(value = taxRate.first,
+                    onValueChange = {
+                        val conv = it.toBigDecimalOrNull()
+                        if (it.isEmpty() || (conv != null && conv.scale() <= 2)) {
+                            taxRate = Pair(it, "")
+                        }
+                    },
                     label = { Text("Tax rate") },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     keyboardActions = KeyboardActions(onNext = { /* */ }),
+                    isError = taxRate.second.isNotEmpty(),
+                    supportingText = if (taxRate.second.isNotEmpty()) {
+                        @Composable { Text(taxRate.second) }
+                    } else null,
                     modifier = Modifier.width(320.dp)
                         .onKeyEvent {
                             // KeyDown is bust on Linux

@@ -47,8 +47,8 @@ fun LoginScreen(
     fun login() = scope.launch {
         loadingOrError = null
         try {
-            // FIXME: Retrieve remote settings and set them too
             Api.instance.token = Api.instance.login(username, password)
+            setRemoteSettings(Api.instance.getSettings())
             setScreen(Screens.DASHBOARD)
             loadingOrError = ""
         } catch (e: Exception) { loadingOrError = e.message }

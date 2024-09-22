@@ -1,12 +1,19 @@
 import fastify from 'fastify'
 import config from './config.js'
-import loginHandler from './endpoints/login.js'
+import postLoginHandler from './endpoints/login.js'
+import {
+  getSettingsHandler,
+  postSettingsHandler,
+} from './endpoints/settings.js'
 
-const server = fastify({ logger: true })
+export const server = fastify({ logger: true })
 
 server.get('/', () => ({ hello: 'world' }))
 
-server.post('/login', loginHandler)
+server.post('/login', postLoginHandler)
+
+server.get('/settings', getSettingsHandler)
+server.post('/settings', postSettingsHandler)
 
 try {
   await server.listen({ port: config.port })
