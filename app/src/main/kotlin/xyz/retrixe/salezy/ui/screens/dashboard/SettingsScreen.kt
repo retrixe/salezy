@@ -29,13 +29,20 @@ fun SettingsScreen(setRemoteSettings: (RemoteSettings) -> Unit) {
 
     var taxRate by remember { mutableStateOf(Pair("", "")) }
     LaunchedEffect(Unit) {
-        taxRate = Pair(RemoteSettings.default.taxRate.asDecimal(), "")
+        taxRate = Pair(remoteSettings.taxRate.asDecimal(), "")
     }
 
     val changed =
         taxRate.first.isEmpty() || taxRate.first.toDecimalLong() != remoteSettings.taxRate
 
     fun onSave() = coroutineScope.launch {
+        if (!changed) { // ExtendedFloatingActionButton can't even be disabled...
+            snackbarHostState.showSnackbar(
+                message = "No changes to the settings have been made!",
+                actionLabel = "Hide",
+                duration = SnackbarDuration.Short)
+            return@launch
+        }
         if (taxRate.first.isBlank()) taxRate = Pair(taxRate.first, "No tax rate provided!")
         try {
             val newSettings = RemoteSettings(
@@ -59,7 +66,7 @@ fun SettingsScreen(setRemoteSettings: (RemoteSettings) -> Unit) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text("Settings", fontSize = 24.sp)
-            if (changed) ExtendedFloatingActionButton(
+            ExtendedFloatingActionButton(
                 onClick = { onSave() },
                 icon = { Icon(imageVector = Icons.Filled.Save, "Save Changes") },
                 text = { Text("Save Changes") }
