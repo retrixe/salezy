@@ -70,7 +70,6 @@ fun App() {
                         setTopBar = { topBar = it },
                         setRemoteSettings = { remoteSettings = it },
                         logout = {
-                            // TODO: Call /api/logout
                             Api.instance.token = ""
                             remoteSettings = RemoteSettings.default
                             screen = Screens.LOGIN

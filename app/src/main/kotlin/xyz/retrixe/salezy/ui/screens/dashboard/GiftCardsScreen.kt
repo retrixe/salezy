@@ -21,7 +21,6 @@ import xyz.retrixe.salezy.ui.components.TableCell
 import xyz.retrixe.salezy.utils.asDecimal
 import xyz.retrixe.salezy.utils.toInstant
 import xyz.retrixe.salezy.utils.formatted
-import java.time.Instant
 
 @Composable
 fun GiftCardsScreen() {

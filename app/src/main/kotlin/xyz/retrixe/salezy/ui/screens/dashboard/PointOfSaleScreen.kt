@@ -22,6 +22,7 @@ import kotlinx.coroutines.launch
 import xyz.retrixe.salezy.api.entities.Invoice
 import xyz.retrixe.salezy.api.entities.InvoicedItem
 import xyz.retrixe.salezy.state.LocalSnackbarHostState
+import xyz.retrixe.salezy.state.RemoteSettingsState
 import xyz.retrixe.salezy.state.TempState
 import xyz.retrixe.salezy.ui.components.HeadTableCell
 import xyz.retrixe.salezy.ui.components.PlainTooltipBox
@@ -39,7 +40,7 @@ fun PointOfSaleScreen() {
     var addInvoiceItemField by remember { mutableStateOf("") }
     var customerId by remember { mutableStateOf<Int?>(null) }
     var notes by remember { mutableStateOf("") }
-    var overrideTaxRateValue by remember { mutableStateOf(20f) }
+    var overrideTaxRateValue by remember { mutableStateOf("") }
 
     fun addInvoiceItem() {
         val fieldAsUPC = addInvoiceItemField.toLongOrNull()
@@ -253,10 +254,20 @@ fun PointOfSaleScreen() {
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                     modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp).weight(1f))
 
-                // FIXME: Use string
-                OutlinedTextField(value = overrideTaxRateValue.toString(),
-                    onValueChange = { overrideTaxRateValue = it.toFloatOrNull() ?: overrideTaxRateValue },
-                    label = { Text("Override tax rate") },
+                OutlinedTextField(value = overrideTaxRateValue,
+                    onValueChange = {
+                        val conv = it.toBigDecimalOrNull()
+                        if (it.isEmpty() || (conv != null && conv.scale() <= 2)) {
+                            overrideTaxRateValue = it
+                        }
+                    },
+                    label = {
+                        Text("Override tax rate (Default: ${RemoteSettingsState.current.taxRate.asDecimal()})")
+                    },
+                    // TODO: Material3 1.4.0 - labelPosition = TextFieldLabelPosition.Above(), remove default from label
+                    placeholder = {
+                        Text("Default: ${RemoteSettingsState.current.taxRate.asDecimal()}")
+                    },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))

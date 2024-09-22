@@ -32,7 +32,7 @@ fun AddEditCustomerDialog(
     var notes by remember { mutableStateOf("") }
 
     LaunchedEffect(open) {
-        id = initialValue?.id ?: (Math.random() * 10000).toInt() // FIXME: No assigning ID client side
+        id = initialValue?.id ?: -1
         phone = Pair(initialValue?.phone ?: "", "")
         name = initialValue?.name ?: ""
         email = initialValue?.email ?: ""

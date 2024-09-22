@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 data class RemoteSettings(
     val taxRate: Long
 ) {companion object {
-    val default = RemoteSettings(20L)
+    val default = RemoteSettings(2000L)
 }}
 
 val RemoteSettingsState = compositionLocalOf { RemoteSettings.default }
