@@ -15,6 +15,7 @@ import androidx.compose.ui.window.Dialog
 import xyz.retrixe.salezy.api.entities.Customer
 
 // TODO (low priority): Dedup add/edit dialog calls
+// TODO (low priority): Match styles with item dialog
 @Composable
 fun AddEditCustomerDialog(
     open: Boolean,
