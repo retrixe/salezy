@@ -1,10 +1,7 @@
 import fastify from 'fastify'
 import config from './config.js'
 import postLoginHandler from './endpoints/login.js'
-import {
-  getSettingsHandler,
-  postSettingsHandler,
-} from './endpoints/settings.js'
+import { getSettingsHandler, postSettingsHandler } from './endpoints/settings.js'
 
 export const server = fastify({ logger: true })
 
