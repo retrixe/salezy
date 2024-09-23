@@ -2,6 +2,7 @@ import type { RouteHandlerMethod } from 'fastify'
 import sql from '../db.js'
 import { verifyRequest } from '../utils.js'
 import { Ajv } from 'ajv'
+import { server } from '../main.js'
 
 const ajv = new Ajv()
 
@@ -32,7 +33,8 @@ export const getSettingsHandler: RouteHandlerMethod = async (request, reply) => 
   const settingsObj = Object.fromEntries(settings.map(s => [s.key, s.value]))
   if (!validateGetSettingsBody(settingsObj)) {
     reply.statusCode = 500
-    return { error: 'Invalid settings on server!' }
+    server.log.error('Invalid settings!', settings)
+    return { error: 'Internal Server Error: Invalid settings!' }
   }
   return settingsObj
 }

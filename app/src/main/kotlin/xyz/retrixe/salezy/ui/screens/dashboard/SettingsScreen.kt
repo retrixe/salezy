@@ -67,7 +67,7 @@ fun SettingsScreen(setRemoteSettings: (RemoteSettings) -> Unit) {
         ) {
             Text("Settings", fontSize = 24.sp)
             ExtendedFloatingActionButton(
-                onClick = { onSave() },
+                onClick = ::onSave,
                 icon = { Icon(imageVector = Icons.Filled.Save, "Save Changes") },
                 text = { Text("Save Changes") }
             )

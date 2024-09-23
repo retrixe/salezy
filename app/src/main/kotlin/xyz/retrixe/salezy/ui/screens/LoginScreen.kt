@@ -100,7 +100,7 @@ fun LoginScreen(
                         ) {
                             Text("Reset to Default")
                         }
-                        TextButton(onClick = { onSubmit() }, modifier = Modifier.padding(8.dp)) {
+                        TextButton(onClick = ::onSubmit, modifier = Modifier.padding(8.dp)) {
                             Text("Save")
                         }
                     }
@@ -155,7 +155,7 @@ fun LoginScreen(
             FilledTonalButton(onClick = { exitProcess(0) }) { Text("Quit") }
 
             Button(modifier = Modifier.focusRequester(loginButtonFocus),
-                onClick = { login() },
+                onClick = ::login,
                 enabled = loadingOrError != null) { Text("Login") }
         }
     }

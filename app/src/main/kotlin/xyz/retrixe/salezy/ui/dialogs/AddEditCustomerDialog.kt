@@ -120,7 +120,7 @@ fun AddEditCustomerDialog(
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
                         FilledTonalButton(onClick = { onDismiss() }) { Text("Cancel") }
-                        Button(onClick = { onSave() }) { Text("Save") }
+                        Button(onClick = ::onSave) { Text("Save") }
                     }
                 }
             }
