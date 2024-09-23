@@ -22,7 +22,6 @@ enum class Screens {
     DASHBOARD
 }
 
-// FIXME: in inventory: make sure to add ability to spcifiy price details, such as cost of item, profit of item, etc, add these to reports
 // FIXME: in reports separate the sales from profit, so the amount sold, vs profit from it
 
 @Composable

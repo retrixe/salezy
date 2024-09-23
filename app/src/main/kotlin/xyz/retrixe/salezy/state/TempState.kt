@@ -18,15 +18,15 @@ object TempState {
     )
 
     val inventoryItems = mutableListOf(
-        InventoryItem("Vase", "https://cdn.discordapp.com/stickers/1224711111098499193.png", 1, "N/A", 100, 10),
-        InventoryItem("Chocolate", null, 2, "N/A", 200, 20),
-        InventoryItem("Perfume", null, 3, "N/A", 300, 30),
-        InventoryItem("Game", null, 4, "N/A", 400, 40),
-        InventoryItem("House", null, 5, "N/A", 500, 50),
-        InventoryItem("Light", null, 6, "N/A", 600, 60),
-        InventoryItem("Laptop", null, 7, "N/A", 700, 70),
-        InventoryItem("Water Bottle", null, 8, "N/A", 800, 80),
-        InventoryItem("Phone", "https://rukminim2.flixcart.com/image/850/1000/xif0q/mobile/g/x/9/-original-imaggsudg5fufyte.jpeg?q=90&crop=false", 9, "N/A", 900, 90),
+        InventoryItem("Vase", "https://cdn.discordapp.com/stickers/1224711111098499193.png", 1, "N/A", 100, 100, 10),
+        InventoryItem("Chocolate", null, 2, "N/A", 200, 200, 20),
+        InventoryItem("Perfume", null, 3, "N/A", 300, 300, 30),
+        InventoryItem("Game", null, 4, "N/A", 400, 400, 40),
+        InventoryItem("House", null, 5, "N/A", 500, 500, 50),
+        InventoryItem("Light", null, 6, "N/A", 600, 600, 60),
+        InventoryItem("Laptop", null, 7, "N/A", 700, 700, 70),
+        InventoryItem("Water Bottle", null, 8, "N/A", 800, 800, 80),
+        InventoryItem("Phone", "https://rukminim2.flixcart.com/image/850/1000/xif0q/mobile/g/x/9/-original-imaggsudg5fufyte.jpeg?q=90&crop=false", 9, "N/A", 900, 900, 90),
     )
 
     val customers = mutableListOf(

@@ -125,7 +125,7 @@ fun PointOfSaleScreen() {
                 ) {
                     Text("Payment", fontSize = 28.sp)
                     val total = invoiceItems.sumOf { item ->
-                        TempState.inventoryItems.find { it.upc == item.id }!!.price * item.count }
+                        TempState.inventoryItems.find { it.upc == item.id }!!.sellingPrice * item.count }
                     val tax = (total * overrideTaxRateValue.toInt()) / 100
                     val totalWithTax = total + tax
                     Text("Total incl. tax: \$${totalWithTax.asDecimal()}")
@@ -188,7 +188,7 @@ fun PointOfSaleScreen() {
                         TableCell(text = inventoryItem.name, weight = .25f)
                         TableCell(text = inventoryItem.upc.toString(), weight = .25f)
                         TableCell(text = inventoryItem.sku, weight = .25f)
-                        TableCell(text = "$${inventoryItem.price.asDecimal()}", weight = .15f)
+                        TableCell(text = "$${inventoryItem.sellingPrice.asDecimal()}", weight = .15f)
                         TableCell(text = item.count.toString(), weight = .1f)
                     }
                 }
@@ -210,7 +210,7 @@ fun PointOfSaleScreen() {
 
             // FIXME drop assert
             val total = invoiceItems.sumOf { item ->
-                TempState.inventoryItems.find { it.upc == item.id }!!.price * item.count }
+                TempState.inventoryItems.find { it.upc == item.id }!!.sellingPrice * item.count }
             Text("Total excl tax: \$${total.asDecimal()}", fontSize = 24.sp,
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp))
         }

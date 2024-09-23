@@ -89,7 +89,7 @@ fun InventoryScreen() {
                             Column(Modifier.padding(8.dp)) {
                                 Text(item.name, fontSize = 20.sp)
                                 Text("UPC ${item.upc}", fontSize = 20.sp)
-                                Text("$${item.price.asDecimal()} | ${item.quantity} in stock")
+                                Text("$${item.sellingPrice.asDecimal()} | ${item.quantity} in stock")
                             }
                             if (item.imageUrl != null) KamelImage(
                                 modifier = Modifier.size(160.dp)

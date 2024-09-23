@@ -7,6 +7,7 @@ import kotlinx.serialization.Serializable
     val imageUrl: String?,
     val upc: Long,
     val sku: String,
-    val price: Long,
+    val costPrice: Long,
+    val sellingPrice: Long,
     val quantity: Int
 )

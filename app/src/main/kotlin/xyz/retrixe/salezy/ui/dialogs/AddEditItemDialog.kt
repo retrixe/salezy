@@ -23,20 +23,22 @@ fun AddEditItemDialog(
     label: String,
     initialValue: InventoryItem?,
     onDismiss: () -> Unit,
-    onSubmit: (InventoryItem) -> Unit // FIXME API logic in dialog
+    onSubmit: (InventoryItem) -> Unit
 ) {
     var name by remember { mutableStateOf(Pair("", "")) }
     // var imageUrl by remember { mutableStateOf<String?>(null) }
     var upc by remember { mutableStateOf(Pair("", "")) }
     var sku by remember { mutableStateOf(Pair("", "")) }
-    var price by remember { mutableStateOf(Pair("", "")) }
+    var costPrice by remember { mutableStateOf(Pair("", "")) }
+    var sellingPrice by remember { mutableStateOf(Pair("", "")) }
     var quantity by remember { mutableStateOf(Pair("", "")) }
 
     LaunchedEffect(open) {
         name = Pair(initialValue?.name ?: "", "")
         upc = Pair(initialValue?.upc?.toString() ?: "", "")
         sku = Pair(initialValue?.sku ?: "", "")
-        price = Pair(initialValue?.price?.asDecimal() ?: "", "")
+        costPrice = Pair(initialValue?.costPrice?.asDecimal() ?: "", "")
+        sellingPrice = Pair(initialValue?.sellingPrice?.asDecimal() ?: "", "")
         quantity = Pair(initialValue?.quantity?.toString() ?: "", "")
     }
 
@@ -44,14 +46,17 @@ fun AddEditItemDialog(
         if (name.first.isBlank()) name = Pair(name.first, "No name provided!")
         if (upc.first.isBlank()) upc = Pair(upc.first, "No UPC provided!")
         if (sku.first.isBlank()) sku = Pair(sku.first, "No SKU provided!")
-        if (price.first.isBlank()) price = Pair(price.first, "No price provided!")
+        if (costPrice.first.isBlank()) costPrice = Pair(costPrice.first, "No cost price provided!")
+        if (sellingPrice.first.isBlank()) sellingPrice = Pair(sellingPrice.first, "No selling price provided!")
         if (quantity.first.isBlank()) quantity = Pair(quantity.first, "No quantity provided!")
+        // FIXME: Call the API here to edit or update
         onSubmit(InventoryItem(
             if (name.second.isEmpty()) name.first else return,
             null,
             if (upc.second.isEmpty()) upc.first.toLong() else return,
             if (sku.second.isEmpty()) sku.first else return,
-            if (price.second.isEmpty()) price.first.toDecimalLong() else return,
+            if (costPrice.second.isEmpty()) costPrice.first.toDecimalLong() else return,
+            if (sellingPrice.second.isEmpty()) sellingPrice.first.toDecimalLong() else return,
             if (quantity.second.isEmpty()) quantity.first.toInt() else return,
         ))
         onDismiss()
@@ -81,7 +86,7 @@ fun AddEditItemDialog(
                             @Composable { Text(name.second) }
                         } else null
                     )
-                    // FIXME image upload
+                    // FIXME image upload: https://github.com/vinceglb/FileKit
                     OutlinedTextField(
                         modifier = Modifier.fillMaxWidth(),
                         value = upc.first,
@@ -109,19 +114,36 @@ fun AddEditItemDialog(
                     )
                     OutlinedTextField(
                         modifier = Modifier.fillMaxWidth(),
-                        value = price.first,
+                        value = costPrice.first,
                         onValueChange = {
                             val conv = it.toBigDecimalOrNull()
                             if (it.isEmpty() || (conv != null && conv.scale() <= 2)) {
-                                price = Pair(it, "")
+                                costPrice = Pair(it, "")
                             }
                         },
-                        label = { Text("Price*") },
+                        label = { Text("Cost Price*") },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        isError = price.second.isNotEmpty(),
-                        supportingText = if (price.second.isNotEmpty()) {
-                            @Composable { Text(price.second) }
+                        isError = costPrice.second.isNotEmpty(),
+                        supportingText = if (costPrice.second.isNotEmpty()) {
+                            @Composable { Text(costPrice.second) }
+                        } else null
+                    )
+                    OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = sellingPrice.first,
+                        onValueChange = {
+                            val conv = it.toBigDecimalOrNull()
+                            if (it.isEmpty() || (conv != null && conv.scale() <= 2)) {
+                                sellingPrice = Pair(it, "")
+                            }
+                        },
+                        label = { Text("Selling Price*") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        isError = sellingPrice.second.isNotEmpty(),
+                        supportingText = if (sellingPrice.second.isNotEmpty()) {
+                            @Composable { Text(sellingPrice.second) }
                         } else null
                     )
                     OutlinedTextField(
