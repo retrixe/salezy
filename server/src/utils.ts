@@ -1,6 +1,9 @@
+import { Ajv } from 'ajv'
 import type { FastifyRequest } from 'fastify'
 import jwt, { type JwtPayload } from 'jsonwebtoken'
 import config from './config.js'
+
+export const ajv = new Ajv()
 
 export type JwtTokenPayload = JwtPayload & { username: string }
 

@@ -1,6 +1,6 @@
 import { hash } from 'argon2'
 import postgres from 'postgres'
-import { postgresConf } from './config.js'
+import { postgresConf } from '../config.js'
 
 const sql = postgres(postgresConf)
 

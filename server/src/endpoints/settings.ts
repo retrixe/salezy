@@ -1,28 +1,9 @@
 import type { RouteHandlerMethod } from 'fastify'
-import sql from '../db.js'
-import { verifyRequest } from '../utils.js'
-import { Ajv } from 'ajv'
+import sql from '../database/sql.js'
+import { ajv, verifyRequest } from '../utils.js'
 import { server } from '../main.js'
-
-const ajv = new Ajv()
-
-interface Setting {
-  key: string
-  value: string
-}
-
-interface GetSettingsBody {
-  taxRate: number
-}
-
-const validateGetSettingsBody = ajv.compile<GetSettingsBody>({
-  type: 'object',
-  properties: {
-    taxRate: { type: 'integer' },
-  },
-  required: ['taxRate'],
-  additionalProperties: false,
-})
+import { validateSettings, type SettingRow } from '../database/entities/settings.js'
+import { type Settings } from 'http2'
 
 export const getSettingsHandler: RouteHandlerMethod = async (request, reply) => {
   if (!verifyRequest(request)) {
@@ -31,7 +12,7 @@ export const getSettingsHandler: RouteHandlerMethod = async (request, reply) => 
   }
   const settings = await sql`SELECT key, value FROM settings;`
   const settingsObj = Object.fromEntries(settings.map(s => [s.key, s.value]))
-  if (!validateGetSettingsBody(settingsObj)) {
+  if (!validateSettings(settingsObj)) {
     reply.statusCode = 500
     server.log.error('Invalid settings!', settings)
     return { error: 'Internal Server Error: Invalid settings!' }
@@ -39,18 +20,10 @@ export const getSettingsHandler: RouteHandlerMethod = async (request, reply) => 
   return settingsObj
 }
 
-interface PostSettingsBody {
-  taxRate?: number
-}
-
-const validatePostSettingsBody = ajv.compile<PostSettingsBody>({
-  type: 'object',
-  properties: {
-    taxRate: { type: 'integer' },
-  },
-  minProperties: 1,
-  additionalProperties: false,
-})
+type PostSettingsBody = Partial<Settings>
+const { ...schemaPostSettingsBody } = validateSettings.schema as Record<string, any>
+delete schemaPostSettingsBody.required
+export const validatePostSettingsBody = ajv.compile<PostSettingsBody>(schemaPostSettingsBody)
 
 export const postSettingsHandler: RouteHandlerMethod = async (request, reply) => {
   const user = verifyRequest(request)
@@ -66,7 +39,7 @@ export const postSettingsHandler: RouteHandlerMethod = async (request, reply) =>
 
   const body = request.body
   await sql.begin(async sql => {
-    const settings = await sql<Setting[]>`SELECT key, value FROM settings;`
+    const settings = await sql<SettingRow[]>`SELECT key, value FROM settings;`
     const settingsObj = Object.fromEntries(settings.map(s => [s.key, JSON.parse(s.value)]))
 
     for (const [key, value] of Object.entries(body)) {

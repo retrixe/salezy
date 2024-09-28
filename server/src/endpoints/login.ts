@@ -2,7 +2,7 @@ import type { RouteHandlerMethod } from 'fastify'
 import jwt from 'jsonwebtoken'
 import { verify } from 'argon2'
 import { jwtSecret } from '../config.js'
-import sql from '../db.js'
+import sql from '../database/sql.js'
 
 const postLoginHandler: RouteHandlerMethod = async (request, reply) => {
   const { username, password } = (request.body ?? {}) as {
