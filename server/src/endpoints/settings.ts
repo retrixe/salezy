@@ -9,20 +9,20 @@ export const getSettingsHandler: RouteHandlerMethod = async (request, reply) => 
     reply.statusCode = 401
     return { error: 'Invalid authorization token!' }
   }
-  const settings = await sql`SELECT key, value FROM settings;`
-  const settingsObj = Object.fromEntries(settings.map(s => [s.key, s.value]))
-  if (!validateSettings(settingsObj)) {
+  const settingRows = await sql<SettingRow[]>`SELECT key, value FROM settings;`
+  const settings = Object.fromEntries(settingRows.map(s => [s.key, s.value]))
+  if (!validateSettings(settings)) {
     reply.statusCode = 500
-    server.log.error('Invalid settings!', settings)
+    server.log.error('Invalid settings!', settingRows)
     return { error: 'Internal Server Error: Invalid settings!' }
   }
-  return settingsObj
+  return settings
 }
 
 type PostSettingsBody = Partial<Settings>
-const { ...schemaPostSettingsBody } = validateSettings.schema as Record<string, any>
-delete schemaPostSettingsBody.required
-export const validatePostSettingsBody = ajv.compile<PostSettingsBody>(schemaPostSettingsBody)
+const { ...postSettingsBodySchema } = validateSettings.schema as Record<string, any>
+delete postSettingsBodySchema.required
+export const validatePostSettingsBody = ajv.compile<PostSettingsBody>(postSettingsBodySchema)
 
 export const postSettingsHandler: RouteHandlerMethod = async (request, reply) => {
   const user = verifyRequest(request)
@@ -39,16 +39,15 @@ export const postSettingsHandler: RouteHandlerMethod = async (request, reply) =>
   const body = request.body
   await sql.begin(async sql => {
     const settings = await sql<SettingRow[]>`SELECT key, value FROM settings;`
-    const settingsObj = Object.fromEntries(settings.map(s => [s.key, JSON.parse(s.value)]))
+    const oldSettings = Object.fromEntries(settings.map(s => [s.key, JSON.parse(s.value)]))
+    const newSettings = { ...oldSettings, ...body }
 
     for (const [key, value] of Object.entries(body)) {
       await sql`UPDATE settings SET value = ${value}::jsonb WHERE key = ${key};`
     }
 
     await sql`INSERT INTO audit_log (actor, action, entity, entity_id, prev_value, new_value) VALUES (
-      ${user.username}, 2, 'settings', -1,
-      ${JSON.stringify(settingsObj)}::jsonb,
-      ${JSON.stringify({ ...settingsObj, ...body })}::jsonb
+      ${user.username}, 2, 'settings', -1, ${oldSettings as any}::jsonb, ${newSettings as any}::jsonb
     );`
   })
 

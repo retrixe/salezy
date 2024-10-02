@@ -14,6 +14,18 @@ await sql`CREATE TABLE IF NOT EXISTS users (
 await sql`INSERT INTO users (username, password) VALUES ('admin', ${await hash('admin')})
           ON CONFLICT DO NOTHING;`
 
+// Customers table
+await sql`CREATE TABLE IF NOT EXISTS customers (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(320) NULL,
+  email VARCHAR(320) NULL,
+  phone VARCHAR(20) NULL,
+  address TEXT NULL,
+  tax_id_number VARCHAR(64) NULL,
+  notes TEXT NULL
+);`
+// TODO: Provide indexes...
+
 // Settings table
 await sql`CREATE TABLE IF NOT EXISTS settings (
   key VARCHAR(64) PRIMARY KEY NOT NULL,
