@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import me.xdrop.fuzzywuzzy.FuzzySearch
+import xyz.retrixe.salezy.api.entities.GiftCard
 import xyz.retrixe.salezy.state.TempState
 import xyz.retrixe.salezy.ui.components.HeadTableCell
 import xyz.retrixe.salezy.ui.components.PlainTooltipBox
@@ -26,9 +27,9 @@ import xyz.retrixe.salezy.utils.formatted
 @Composable
 fun GiftCardsScreen() {
     var query by remember { mutableStateOf("") }
-    val giftCards by remember { mutableStateOf(TempState.giftCards) }
+    val giftCards by remember { mutableStateOf<List<GiftCard>?>(TempState.giftCards) }
 
-    val giftCardsFiltered = if (query.isNotBlank()) {
+    val giftCardsFiltered = if (query.isNotBlank() && giftCards != null) {
         FuzzySearch.extractSorted(query, giftCards, { it.id }, 60).map { it.referent }
     } else giftCards
 
@@ -39,7 +40,7 @@ fun GiftCardsScreen() {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text("Gift Cards", fontSize = 24.sp)
-            ExtendedFloatingActionButton(
+            if (giftCards != null) ExtendedFloatingActionButton(
                 onClick = { println("Create Gift Card") }, // FIXME: Open add item dialog which calls back API
                 icon = { Icon(imageVector = Icons.Filled.Add, "Create Gift Card") },
                 text = { Text("Create Gift Card") }
@@ -56,37 +57,43 @@ fun GiftCardsScreen() {
 
                 Box(Modifier.padding(8.dp))
 
-                Row(Modifier.fillMaxWidth()) {
-                    HeadTableCell("Actions", 96.dp)
-                    HeadTableCell("ID", .2f)
-                    HeadTableCell("Issued balance", .2f)
-                    HeadTableCell("Current balance", .2f)
-                    HeadTableCell("Issued on", .2f)
-                    HeadTableCell("Expires on", .2f)
-                }
-                LazyColumn {
-                    // item {}
-                    items(giftCardsFiltered) { item ->
-                        HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.inverseSurface)
-                        Row(Modifier.fillMaxWidth()) {
-                            Row(Modifier.widthIn(min = 96.dp)) {
-                                // FIXME do something
-                                PlainTooltipBox("Edit") {
-                                    IconButton(onClick = { println("Edit") }) {
-                                        Icon(imageVector = Icons.Filled.Edit, contentDescription = "Edit")
+                if (giftCardsFiltered == null) {
+                    Box(Modifier.fillMaxSize(), Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                } else {
+                    Row(Modifier.fillMaxWidth()) {
+                        HeadTableCell("Actions", 96.dp)
+                        HeadTableCell("ID", .2f)
+                        HeadTableCell("Issued balance", .2f)
+                        HeadTableCell("Current balance", .2f)
+                        HeadTableCell("Issued on", .2f)
+                        HeadTableCell("Expires on", .2f)
+                    }
+                    LazyColumn {
+                        // item {}
+                        items(giftCardsFiltered) { item ->
+                            HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.inverseSurface)
+                            Row(Modifier.fillMaxWidth()) {
+                                Row(Modifier.widthIn(min = 96.dp)) {
+                                    // FIXME do something
+                                    PlainTooltipBox("Edit") {
+                                        IconButton(onClick = { println("Edit") }) {
+                                            Icon(imageVector = Icons.Filled.Edit, contentDescription = "Edit")
+                                        }
+                                    }
+                                    PlainTooltipBox("History") {
+                                        IconButton(onClick = { println("History") }) {
+                                            Icon(imageVector = Icons.Filled.History, contentDescription = "History")
+                                        }
                                     }
                                 }
-                                PlainTooltipBox("History") {
-                                    IconButton(onClick = { println("History") }) {
-                                        Icon(imageVector = Icons.Filled.History, contentDescription = "History")
-                                    }
-                                }
+                                TableCell(text = item.id, weight = .2f)
+                                TableCell(text = item.issuedBalance.asDecimal(), weight = .2f)
+                                TableCell(text = item.currentBalance.asDecimal(), weight = .2f)
+                                TableCell(text = item.issuedOn.toInstant().formatted(), weight = .2f)
+                                TableCell(text = item.expiresOn.toInstant().formatted(), weight = .2f)
                             }
-                            TableCell(text = item.id, weight = .2f)
-                            TableCell(text = item.issuedBalance.asDecimal(), weight = .2f)
-                            TableCell(text = item.currentBalance.asDecimal(), weight = .2f)
-                            TableCell(text = item.issuedOn.toInstant().formatted(), weight = .2f)
-                            TableCell(text = item.expiresOn.toInstant().formatted(), weight = .2f)
                         }
                     }
                 }

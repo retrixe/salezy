@@ -18,6 +18,7 @@ import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
 import kotlinx.coroutines.launch
 import me.xdrop.fuzzywuzzy.FuzzySearch
+import xyz.retrixe.salezy.api.entities.InventoryItem
 import xyz.retrixe.salezy.state.LocalSnackbarHostState
 import xyz.retrixe.salezy.state.TempState
 import xyz.retrixe.salezy.ui.components.SearchField
@@ -30,11 +31,11 @@ fun InventoryScreen() {
     val snackbarHostState = LocalSnackbarHostState.current
 
     var query by remember { mutableStateOf("") }
-    var inventoryItems by remember { mutableStateOf(TempState.inventoryItems) }
+    var inventoryItems by remember { mutableStateOf<List<InventoryItem>?>(TempState.inventoryItems) }
 
     val inventoryItemsFiltered = if (query.isNotBlank()) {
         FuzzySearch
-            .extractSorted(query, inventoryItems, { "${it.name} ${it.upc}" }, 60)
+            .extractSorted(query, inventoryItems, { "${it.name} ${it.sku} ${it.upc}" }, 60)
             .map { it.referent }
     } else inventoryItems
 
@@ -44,13 +45,13 @@ fun InventoryScreen() {
         label = "Add New Item",
         initialValue = null,
         onDismiss = { openNewItemDialog = false },
-        onSubmit = { TempState.inventoryItems.add(it); inventoryItems = TempState.inventoryItems })
+        onSubmit = { inventoryItems = inventoryItems!! + it })
 
     var openEditItemDialog by remember { mutableStateOf<Long?>(null) }
     AddEditItemDialog(
         open = openEditItemDialog != null,
         label = "Edit Item",
-        initialValue = inventoryItems.find { it.upc == openEditItemDialog },
+        initialValue = inventoryItems?.find { it.upc == openEditItemDialog },
         onDismiss = { openEditItemDialog = null },
         onSubmit = { TempState.inventoryItems[TempState.inventoryItems.indexOfFirst {
             item -> item.upc == openEditItemDialog
@@ -63,7 +64,7 @@ fun InventoryScreen() {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text("Inventory", fontSize = 24.sp)
-            ExtendedFloatingActionButton(
+            if (inventoryItems != null) ExtendedFloatingActionButton(
                 onClick = { openNewItemDialog = true },
                 icon = { Icon(imageVector = Icons.Filled.Add, "Add Item") },
                 text = { Text("Add Item") }
@@ -73,46 +74,58 @@ fun InventoryScreen() {
         Card(Modifier.fillMaxSize()) {
             Column(Modifier.padding(24.dp)) {
                 SearchField(
-                    placeholder = "Search by name or UPC",
+                    placeholder = "Search by name, SKU or UPC",
                     query = query,
                     onQueryChange = { query = it })
 
                 Box(Modifier.padding(8.dp))
 
-                LazyVerticalGrid(
-                    columns = GridCells.Adaptive(minSize = 240.dp),
-                    verticalArrangement = Arrangement.spacedBy(32.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                ) { items(inventoryItemsFiltered) { item ->
-                    ElevatedCard(elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)) {
-                        Column(Modifier.padding(8.dp).fillMaxWidth().clickable {
-                            openEditItemDialog = item.upc
-                        }) {
-                            Column(Modifier.padding(8.dp)) {
-                                Text(item.name, fontSize = 20.sp)
-                                Text("UPC ${item.upc}", fontSize = 20.sp)
-                                Text("$${item.sellingPrice.asDecimal()} | ${item.quantity} in stock")
+                if (inventoryItemsFiltered == null) {
+                    Box(Modifier.fillMaxSize(), Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                } else {
+                    LazyVerticalGrid(
+                        columns = GridCells.Adaptive(minSize = 240.dp),
+                        verticalArrangement = Arrangement.spacedBy(32.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    ) {
+                        items(inventoryItemsFiltered) { item ->
+                            ElevatedCard(elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)) {
+                                Column(Modifier.padding(8.dp).fillMaxWidth().clickable {
+                                    openEditItemDialog = item.upc
+                                }) {
+                                    Column(Modifier.padding(8.dp)) {
+                                        Text(item.name, fontSize = 20.sp)
+                                        Text("UPC ${item.upc}", fontSize = 20.sp)
+                                        Text("$${item.sellingPrice.asDecimal()} | ${item.quantity} in stock")
+                                    }
+                                    if (item.imageUrl != null) KamelImage(
+                                        modifier = Modifier.size(160.dp)
+                                            .align(Alignment.CenterHorizontally),
+                                        contentDescription = item.name,
+                                        resource = asyncPainterResource(data = item.imageUrl),
+                                        animationSpec = tween(),
+                                        onLoading = { _ ->
+                                            Box(Modifier.fillMaxSize(), Alignment.Center) {
+                                                CircularProgressIndicator()
+                                            }
+                                        },
+                                        onFailure = { exception ->
+                                            coroutineScope.launch {
+                                                snackbarHostState.showSnackbar(
+                                                    message = exception.message.toString(),
+                                                    actionLabel = "Hide",
+                                                    duration = SnackbarDuration.Short
+                                                )
+                                            }
+                                        }
+                                    ) else Box(Modifier.size(160.dp))
+                                }
                             }
-                            if (item.imageUrl != null) KamelImage(
-                                modifier = Modifier.size(160.dp)
-                                    .align(Alignment.CenterHorizontally),
-                                contentDescription = item.name,
-                                resource = asyncPainterResource(data = item.imageUrl),
-                                animationSpec = tween(),
-                                onLoading = { _ -> Box(Modifier.fillMaxSize(), Alignment.Center) {
-                                    CircularProgressIndicator()
-                                } },
-                                onFailure = { exception -> coroutineScope.launch {
-                                    snackbarHostState.showSnackbar(
-                                        message = exception.message.toString(),
-                                        actionLabel = "Hide",
-                                        duration = SnackbarDuration.Short
-                                    )
-                                } }
-                            ) else Box(Modifier.size(160.dp))
                         }
                     }
-                } }
+                }
             }
         }
     }

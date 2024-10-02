@@ -20,13 +20,14 @@ import xyz.retrixe.salezy.utils.asDecimal
 import xyz.retrixe.salezy.utils.formatted
 import xyz.retrixe.salezy.utils.toInstant
 import me.xdrop.fuzzywuzzy.FuzzySearch
+import xyz.retrixe.salezy.api.entities.Invoice
 
 @Composable
 fun TxnHistoryScreen() {
     var query by remember { mutableStateOf("") }
-    val invoices by remember { mutableStateOf(TempState.invoices) }
+    val invoices by remember { mutableStateOf<List<Invoice>?>(TempState.invoices) }
 
-    val invoicesFiltered = if (query.isNotBlank()) {
+    val invoicesFiltered = if (query.isNotBlank() && invoices != null) {
         FuzzySearch
             .extractSorted(query, invoices, { "${it.id} ${it.customerId}" }, 60)
             .map { it.referent }
@@ -44,37 +45,46 @@ fun TxnHistoryScreen() {
         Card(Modifier.fillMaxSize()) {
             Column(Modifier.padding(24.dp)) {
                 SearchField(
-                    placeholder = "Search by ID",
+                    placeholder = "Search by ID or customer ID",
                     query = query,
                     onQueryChange = { query = it })
 
                 Box(Modifier.padding(8.dp))
 
-                Row(Modifier.fillMaxWidth()) {
-                    HeadTableCell("ID", .2f)
-                    HeadTableCell("Customer ID", .2f)
-                    HeadTableCell("Date/time", .2f)
-                    HeadTableCell("Cost (pre-tax)", .15f)
-                    HeadTableCell("Cost (post-tax)", .15f)
-                    HeadTableCell("Item qty", .1f)
-                    HeadTableCell("Details", 80.dp)
-                }
-                LazyColumn {
-                    // item {}
-                    items(invoicesFiltered) { invoice ->
-                        HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.inverseSurface)
-                        Row(Modifier.fillMaxWidth()) {
-                            TableCell(text = invoice.id.toString(), weight = .2f)
-                            TableCell(text = invoice.customerId.toString(), weight = .2f)
-                            TableCell(text = invoice.issuedOn.toInstant().formatted(), weight = .2f)
-                            TableCell(text = "\$${invoice.beforeTaxCost.asDecimal()}", weight = .15f)
-                            TableCell(text = "\$${invoice.afterTaxCost.asDecimal()}", weight = .15f)
-                            TableCell(text = invoice.items.size.toString(), weight = .1f)
-                            // FIXME show details
-                            Row(Modifier.widthIn(80.dp)) {
-                                PlainTooltipBox("Info") {
-                                    IconButton(onClick = { println("Info") }) {
-                                        Icon(imageVector = Icons.Filled.ArrowCircleRight, contentDescription = "Info")
+                if (invoicesFiltered == null) {
+                    Box(Modifier.fillMaxSize(), Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                } else {
+                    Row(Modifier.fillMaxWidth()) {
+                        HeadTableCell("ID", .2f)
+                        HeadTableCell("Customer ID", .2f)
+                        HeadTableCell("Date/time", .2f)
+                        HeadTableCell("Cost (pre-tax)", .15f)
+                        HeadTableCell("Cost (post-tax)", .15f)
+                        HeadTableCell("Item qty", .1f)
+                        HeadTableCell("Details", 80.dp)
+                    }
+                    LazyColumn {
+                        // item {}
+                        items(invoicesFiltered) { invoice ->
+                            HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.inverseSurface)
+                            Row(Modifier.fillMaxWidth()) {
+                                TableCell(text = invoice.id.toString(), weight = .2f)
+                                TableCell(text = invoice.customerId.toString(), weight = .2f)
+                                TableCell(text = invoice.issuedOn.toInstant().formatted(), weight = .2f)
+                                TableCell(text = "\$${invoice.beforeTaxCost.asDecimal()}", weight = .15f)
+                                TableCell(text = "\$${invoice.afterTaxCost.asDecimal()}", weight = .15f)
+                                TableCell(text = invoice.items.size.toString(), weight = .1f)
+                                // FIXME show details
+                                Row(Modifier.widthIn(80.dp)) {
+                                    PlainTooltipBox("Info") {
+                                        IconButton(onClick = { println("Info") }) {
+                                            Icon(
+                                                imageVector = Icons.Filled.ArrowCircleRight,
+                                                contentDescription = "Info"
+                                            )
+                                        }
                                     }
                                 }
                             }
