@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import me.xdrop.fuzzywuzzy.FuzzySearch
 import xyz.retrixe.salezy.state.TempState
 import xyz.retrixe.salezy.ui.components.HeadTableCell
 import xyz.retrixe.salezy.ui.components.PlainTooltipBox
@@ -25,7 +26,11 @@ fun CustomersScreen() {
     var query by remember { mutableStateOf("") }
     var customers by remember { mutableStateOf(TempState.customers) }
 
-    val customersFiltered = customers.filter { it.phone.contains(query, ignoreCase = true) } // FIXME fuzzy search
+    val customersFiltered = if (query.isNotBlank()) {
+        FuzzySearch
+            .extractSorted(query, customers, { "${it.id} ${it.phone} ${it.name}" }, 60)
+            .map { it.referent }
+    } else customers
 
     var openNewCustomerDialog by remember { mutableStateOf(false) }
     AddEditCustomerDialog(

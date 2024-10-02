@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.sp
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
 import kotlinx.coroutines.launch
+import me.xdrop.fuzzywuzzy.FuzzySearch
 import xyz.retrixe.salezy.state.LocalSnackbarHostState
 import xyz.retrixe.salezy.state.TempState
 import xyz.retrixe.salezy.ui.components.SearchField
@@ -31,10 +32,11 @@ fun InventoryScreen() {
     var query by remember { mutableStateOf("") }
     var inventoryItems by remember { mutableStateOf(TempState.inventoryItems) }
 
-    val inventoryItemsFiltered = inventoryItems.filter {
-        it.name.contains(query, ignoreCase = true) ||
-                it.upc.toString().contains(query, ignoreCase = true)
-    } // FIXME fuzzy search
+    val inventoryItemsFiltered = if (query.isNotBlank()) {
+        FuzzySearch
+            .extractSorted(query, inventoryItems, { "${it.name} ${it.upc}" }, 60)
+            .map { it.referent }
+    } else inventoryItems
 
     var openNewItemDialog by remember { mutableStateOf(false) }
     AddEditItemDialog(

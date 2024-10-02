@@ -13,6 +13,7 @@ import xyz.retrixe.salezy.state.TempState
 import xyz.retrixe.salezy.utils.asDecimal
 
 // FIXME: Replace with actual API call
+// FIXME: in reports separate the sales from profit, so the amount sold, vs profit from it
 
 @Composable
 fun ReportsScreen() {

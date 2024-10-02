@@ -22,8 +22,6 @@ enum class Screens {
     DASHBOARD
 }
 
-// FIXME: in reports separate the sales from profit, so the amount sold, vs profit from it
-
 @Composable
 @Preview
 @OptIn(ExperimentalMaterial3Api::class)

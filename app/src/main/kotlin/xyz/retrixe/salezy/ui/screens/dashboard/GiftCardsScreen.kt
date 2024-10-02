@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import me.xdrop.fuzzywuzzy.FuzzySearch
 import xyz.retrixe.salezy.state.TempState
 import xyz.retrixe.salezy.ui.components.HeadTableCell
 import xyz.retrixe.salezy.ui.components.PlainTooltipBox
@@ -27,7 +28,9 @@ fun GiftCardsScreen() {
     var query by remember { mutableStateOf("") }
     val giftCards by remember { mutableStateOf(TempState.giftCards) }
 
-    val giftCardsFiltered = giftCards.filter { it.id.contains(query, ignoreCase = true) } // FIXME fuzzy search
+    val giftCardsFiltered = if (query.isNotBlank()) {
+        FuzzySearch.extractSorted(query, giftCards, { it.id }, 60).map { it.referent }
+    } else giftCards
 
     Column(Modifier.fillMaxSize().padding(24.dp)) {
         Row(

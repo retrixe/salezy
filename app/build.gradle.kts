@@ -32,6 +32,7 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.8")
     implementation("media.kamel:kamel-image:0.9.5")
     implementation("io.github.vinceglb:filekit-core:0.8.2")
+    implementation("me.xdrop:fuzzywuzzy:1.4.0")
 }
 
 compose.desktop {

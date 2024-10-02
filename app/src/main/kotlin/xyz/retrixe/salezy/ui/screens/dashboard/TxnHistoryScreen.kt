@@ -19,14 +19,18 @@ import xyz.retrixe.salezy.ui.components.TableCell
 import xyz.retrixe.salezy.utils.asDecimal
 import xyz.retrixe.salezy.utils.formatted
 import xyz.retrixe.salezy.utils.toInstant
-import java.time.Instant
+import me.xdrop.fuzzywuzzy.FuzzySearch
 
 @Composable
 fun TxnHistoryScreen() {
     var query by remember { mutableStateOf("") }
     val invoices by remember { mutableStateOf(TempState.invoices) }
 
-    val invoicesFiltered = invoices.filter { it.id.toString().contains(query, ignoreCase = true) } // FIXME fuzzy search
+    val invoicesFiltered = if (query.isNotBlank()) {
+        FuzzySearch
+            .extractSorted(query, invoices, { "${it.id} ${it.customerId}" }, 60)
+            .map { it.referent }
+    } else invoices
 
     Column(Modifier.fillMaxSize().padding(24.dp)) {
         Row(
