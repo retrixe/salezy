@@ -33,6 +33,7 @@ fun InventoryScreen() {
     var query by remember { mutableStateOf("") }
     var inventoryItems by remember { mutableStateOf<List<InventoryItem>?>(TempState.inventoryItems) }
 
+    // TODO: Server side search
     val inventoryItemsFiltered = if (query.isNotBlank()) {
         FuzzySearch
             .extractSorted(query, inventoryItems, { "${it.name} ${it.sku} ${it.upc}" }, 60)
@@ -53,9 +54,9 @@ fun InventoryScreen() {
         label = "Edit Item",
         initialValue = inventoryItems?.find { it.upc == openEditItemDialog },
         onDismiss = { openEditItemDialog = null },
-        onSubmit = { TempState.inventoryItems[TempState.inventoryItems.indexOfFirst {
-            item -> item.upc == openEditItemDialog
-        }] = it })
+        onSubmit = { newItem -> inventoryItems = inventoryItems!!.map {
+            if (it.upc == openEditItemDialog) newItem else it
+        } })
 
     Column(Modifier.fillMaxSize().padding(24.dp)) {
         Row(
@@ -85,6 +86,7 @@ fun InventoryScreen() {
                         CircularProgressIndicator()
                     }
                 } else {
+                    // TODO: Pagination
                     LazyVerticalGrid(
                         columns = GridCells.Adaptive(minSize = 240.dp),
                         verticalArrangement = Arrangement.spacedBy(32.dp),

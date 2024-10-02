@@ -27,6 +27,7 @@ fun TxnHistoryScreen() {
     var query by remember { mutableStateOf("") }
     val invoices by remember { mutableStateOf<List<Invoice>?>(TempState.invoices) }
 
+    // TODO: Server side search
     val invoicesFiltered = if (query.isNotBlank() && invoices != null) {
         FuzzySearch
             .extractSorted(query, invoices, { "${it.id} ${it.customerId}" }, 60)
@@ -65,6 +66,7 @@ fun TxnHistoryScreen() {
                         HeadTableCell("Item qty", .1f)
                         HeadTableCell("Details", 80.dp)
                     }
+                    // TODO: Pagination
                     LazyColumn {
                         // item {}
                         items(invoicesFiltered) { invoice ->

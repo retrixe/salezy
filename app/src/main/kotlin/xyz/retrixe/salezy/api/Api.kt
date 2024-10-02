@@ -23,7 +23,7 @@ class Api {
     private val client = HttpClient(Java) {
         // TODO: https://ktor.io/docs/client-response-validation.html
         install(ContentNegotiation) {
-            json(Json)
+            json(Json { ignoreUnknownKeys = true })
         }
         install(DefaultRequest) {
             url(this@Api.url)
@@ -50,9 +50,6 @@ class Api {
     }
 
     suspend fun getSettings(): RemoteSettings {
-        // For now, this is compatible with RemoteSettings
-        // @Serializable data class SettingsResponseBody()
-
         val response = client.get("settings")
         if (!response.status.isSuccess()) {
             throw ApiException(response.body<ErrorResponseBody>().error)
@@ -61,9 +58,6 @@ class Api {
     }
 
     suspend fun postSettings(settings: RemoteSettings) {
-        // For now, this is compatible with RemoteSettings
-        // @Serializable data class SettingsRequestBody()
-
         val response = client.post("settings") {
             setBody(settings)
         }

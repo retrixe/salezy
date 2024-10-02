@@ -27,6 +27,7 @@ fun CustomersScreen() {
     var query by remember { mutableStateOf("") }
     var customers by remember { mutableStateOf<List<Customer>?>(TempState.customers) }
 
+    // TODO: Server side search
     val customersFiltered = if (customers != null && query.isNotBlank()) {
         FuzzySearch
             .extractSorted(query, customers, { "${it.id} ${it.phone} ${it.name}" }, 60)
@@ -47,9 +48,9 @@ fun CustomersScreen() {
         label = "Edit Customer",
         initialValue = customers?.find { it.id == openEditCustomerDialog },
         onDismiss = { openEditCustomerDialog = null },
-        onSubmit = { TempState.customers[TempState.customers.indexOfFirst {
-            customer -> customer.id == openEditCustomerDialog
-        }] = it }
+        onSubmit = { newCustomer -> customers = customers!!.map {
+            if (it.id == openEditCustomerDialog) newCustomer else it
+        } }
     )
 
     Column(Modifier.fillMaxSize().padding(24.dp)) {

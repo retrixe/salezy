@@ -29,6 +29,7 @@ fun GiftCardsScreen() {
     var query by remember { mutableStateOf("") }
     val giftCards by remember { mutableStateOf<List<GiftCard>?>(TempState.giftCards) }
 
+    // TODO: Server side search
     val giftCardsFiltered = if (query.isNotBlank() && giftCards != null) {
         FuzzySearch.extractSorted(query, giftCards, { it.id }, 60).map { it.referent }
     } else giftCards
@@ -70,6 +71,7 @@ fun GiftCardsScreen() {
                         HeadTableCell("Issued on", .2f)
                         HeadTableCell("Expires on", .2f)
                     }
+                    // TODO: Pagination
                     LazyColumn {
                         // item {}
                         items(giftCardsFiltered) { item ->
