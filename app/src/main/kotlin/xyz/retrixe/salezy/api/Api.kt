@@ -10,6 +10,8 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import xyz.retrixe.salezy.api.entities.Customer
+import xyz.retrixe.salezy.api.entities.EphemeralCustomer
 import xyz.retrixe.salezy.state.LocalConfiguration
 import xyz.retrixe.salezy.state.RemoteSettings
 
@@ -63,6 +65,38 @@ class Api {
         }
         if (!response.status.isSuccess()) {
             throw ApiException(response.body<ErrorResponseBody>().error)
+        }
+    }
+
+    suspend fun getCustomers(): Sequence<Customer> {
+        val response = client.get("customers")
+        if (!response.status.isSuccess()) {
+            throw ApiException(response.body<ErrorResponseBody>().error)
+        } else {
+            return response.body<Sequence<Customer>>()
+        }
+    }
+
+    suspend fun postCustomer(customer: EphemeralCustomer): Customer {
+        val response = client.post("customer") {
+            setBody(customer)
+        }
+        if (!response.status.isSuccess()) {
+            throw ApiException(response.body<ErrorResponseBody>().error)
+        } else {
+            return response.body<Customer>()
+        }
+    }
+
+    suspend fun patchCustomer(id: Int, customer: EphemeralCustomer): Customer {
+        val response = client.patch("customer") {
+            url.appendPathSegments(id.toString())
+            setBody(customer)
+        }
+        if (!response.status.isSuccess()) {
+            throw ApiException(response.body<ErrorResponseBody>().error)
+        } else {
+            return response.body<Customer>()
         }
     }
 }

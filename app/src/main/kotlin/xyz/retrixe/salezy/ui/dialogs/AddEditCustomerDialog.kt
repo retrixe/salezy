@@ -12,7 +12,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import kotlinx.coroutines.launch
+import xyz.retrixe.salezy.api.Api
 import xyz.retrixe.salezy.api.entities.Customer
+import xyz.retrixe.salezy.api.entities.EphemeralCustomer
+import xyz.retrixe.salezy.state.LocalSnackbarHostState
 
 // TODO (low priority): Dedup add/edit dialog calls
 // TODO (low priority): Match styles with item dialog
@@ -22,8 +26,11 @@ fun AddEditCustomerDialog(
     label: String,
     initialValue: Customer?,
     onDismiss: () -> Unit,
-    onSubmit: (Customer) -> Unit // FIXME API logic in dialog
+    onSubmit: (Customer) -> Unit
 ) {
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = LocalSnackbarHostState.current
+
     var id by remember { mutableStateOf(-1) }
     var phone by remember { mutableStateOf(Pair("", "")) }
     var name by remember { mutableStateOf("") }
@@ -42,17 +49,28 @@ fun AddEditCustomerDialog(
         notes = initialValue?.notes ?: ""
     }
 
-    fun onSave() {
+    fun onSave() = scope.launch {
         if (phone.first.isBlank()) phone = Pair(phone.first, "No phone number provided!")
-        onSubmit(Customer(
-            id,
-            if (phone.second.isEmpty()) phone.first else return,
+        val ephemeralCustomer = EphemeralCustomer(
+            if (phone.second.isEmpty()) phone.first else return@launch,
             name.ifBlank { null },
             email.ifBlank { null },
             address.ifBlank { null },
             taxIdNumber.ifBlank { null },
-            notes.ifBlank { null }))
-        onDismiss()
+            notes.ifBlank { null })
+        try {
+            val customer =
+                if (id == -1) Api.instance.postCustomer(ephemeralCustomer)
+                else Api.instance.patchCustomer(id, ephemeralCustomer)
+            onSubmit(customer)
+            onDismiss()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            snackbarHostState.showSnackbar(
+                message = "Failed to save customer! ${e.message}",
+                actionLabel = "Hide",
+                duration = SnackbarDuration.Long)
+        }
     }
 
     AnimatedVisibility(open) {

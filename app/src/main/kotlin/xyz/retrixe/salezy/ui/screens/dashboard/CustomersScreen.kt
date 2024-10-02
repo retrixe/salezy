@@ -14,7 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import me.xdrop.fuzzywuzzy.FuzzySearch
+import xyz.retrixe.salezy.api.Api
 import xyz.retrixe.salezy.api.entities.Customer
+import xyz.retrixe.salezy.state.LocalSnackbarHostState
 import xyz.retrixe.salezy.state.TempState
 import xyz.retrixe.salezy.ui.components.HeadTableCell
 import xyz.retrixe.salezy.ui.components.PlainTooltipBox
@@ -24,8 +26,22 @@ import xyz.retrixe.salezy.ui.dialogs.AddEditCustomerDialog
 
 @Composable
 fun CustomersScreen() {
+    val snackbarHostState = LocalSnackbarHostState.current
+
     var query by remember { mutableStateOf("") }
     var customers by remember { mutableStateOf<List<Customer>?>(TempState.customers) }
+
+    LaunchedEffect(true) {
+        try {
+            customers = Api.instance.getCustomers().toList()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            snackbarHostState.showSnackbar(
+                message = "Failed to load customers! ${e.message}",
+                actionLabel = "Hide",
+                duration = SnackbarDuration.Indefinite)
+        }
+    }
 
     // TODO: Server side search
     val customersFiltered = if (customers != null && query.isNotBlank()) {
@@ -89,6 +105,7 @@ fun CustomersScreen() {
                         HeadTableCell("Address", .3f)
                         HeadTableCell("Notes", .3f)
                     }
+                    // TODO: Pagination
                     LazyColumn {
                         items(customersFiltered) { customer ->
                             HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.inverseSurface)
