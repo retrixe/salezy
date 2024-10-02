@@ -2,8 +2,7 @@ import type { RouteHandlerMethod } from 'fastify'
 import sql from '../database/sql.js'
 import { ajv, verifyRequest } from '../utils.js'
 import { server } from '../main.js'
-import { validateSettings, type SettingRow } from '../database/entities/settings.js'
-import { type Settings } from 'http2'
+import { validateSettings, type SettingRow, type Settings } from '../database/entities/settings.js'
 
 export const getSettingsHandler: RouteHandlerMethod = async (request, reply) => {
   if (!verifyRequest(request)) {

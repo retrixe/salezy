@@ -2,7 +2,9 @@ import { hash } from 'argon2'
 import postgres from 'postgres'
 import { postgresConf } from '../config.js'
 
-const sql = postgres(postgresConf)
+const sql = postgres({ ...postgresConf, transform: postgres.camel })
+
+// https://stackoverflow.com/questions/4107915/postgresql-default-constraint-names/4108266#4108266
 
 // Users table
 await sql`CREATE TABLE IF NOT EXISTS users (
