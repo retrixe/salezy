@@ -2,7 +2,11 @@ import { hash } from 'argon2'
 import postgres from 'postgres'
 import { postgresConf } from '../config.js'
 
-const sql = postgres({ ...postgresConf, transform: postgres.camel })
+const sql = postgres({
+  ...postgresConf,
+  transform: postgres.camel,
+  types: { bigint: postgres.BigInt },
+})
 
 // https://stackoverflow.com/questions/4107915/postgresql-default-constraint-names/4108266#4108266
 
@@ -16,7 +20,7 @@ await sql`INSERT INTO users (username, password) VALUES ('admin', ${await hash('
 
 // Assets table
 await sql`CREATE TABLE IF NOT EXISTS assets (
-  hash VARCHAR(32) PRIMARY KEY NOT NULL,
+  hash VARCHAR(64) PRIMARY KEY NOT NULL,
   data BYTEA NOT NULL
 );`
 
@@ -34,7 +38,7 @@ await sql`CREATE TABLE IF NOT EXISTS customers (
 // Inventory items
 await sql`CREATE TABLE IF NOT EXISTS inventory_items (
   name VARCHAR(320) NOT NULL,
-  image_id VARCHAR(32) NULL REFERENCES assets (hash) ON DELETE RESTRICT,
+  image_id VARCHAR(64) NULL REFERENCES assets (hash) ON DELETE RESTRICT,
   upc BIGINT PRIMARY KEY NOT NULL,
   sku VARCHAR(64) NOT NULL,
   cost_price BIGINT NOT NULL,

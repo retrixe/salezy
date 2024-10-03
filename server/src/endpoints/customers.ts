@@ -36,16 +36,14 @@ export const postCustomerHandler: RouteHandlerMethod = async (request, reply) =>
   }
 
   const body = request.body
-  const id = await sql.begin(async sql => {
+  return await sql.begin(async sql => {
     const [{ id }] = await sql<[{ id: number }]>`INSERT INTO customers ${sql(body)} RETURNING id;`
 
     await sql`INSERT INTO audit_log (actor, action, entity, entity_id, prev_value, new_value) VALUES (
       ${user.username}, 0, 'customer', ${id}, NULL, ${{ ...body, id } as any}::jsonb
     );`
-    return id
+    return { ...body, id }
   })
-
-  return { ...body, id }
 }
 
 export const patchCustomerHandler: RouteHandlerMethod = async (request, reply) => {
@@ -62,7 +60,7 @@ export const patchCustomerHandler: RouteHandlerMethod = async (request, reply) =
   }
 
   const body = request.body
-  const customer = await sql.begin(async sql => {
+  return await sql.begin(async sql => {
     const [oldCustomer] = await sql<Customer[]>`SELECT * FROM customers WHERE id = ${id};`
     if (!oldCustomer) {
       reply.statusCode = 404
@@ -76,6 +74,4 @@ export const patchCustomerHandler: RouteHandlerMethod = async (request, reply) =
     );`
     return newCustomer
   })
-
-  return customer
 }

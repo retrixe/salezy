@@ -12,8 +12,9 @@ import {
   patchInventoryItemHandler,
   postInventoryItemHandler,
 } from './endpoints/inventoryItems.js'
+import { getAssetHandler } from './endpoints/assets.js'
 
-export const server = fastify({ logger: true })
+export const server = fastify({ logger: true, bodyLimit: 25 * 1024 * 1024 })
 
 server.get('/', () => ({ hello: 'world' }))
 
@@ -29,6 +30,8 @@ server.patch('/customer/:id', patchCustomerHandler)
 server.get('/inventoryItems', getInventoryItemsHandler)
 server.post('/inventoryItem', postInventoryItemHandler)
 server.patch('/inventoryItem/:upc', patchInventoryItemHandler)
+
+server.get('/asset/:id', getAssetHandler)
 
 try {
   await server.listen({ port: config.port })
