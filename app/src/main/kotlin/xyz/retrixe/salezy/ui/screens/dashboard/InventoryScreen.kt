@@ -16,22 +16,32 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
-import kotlinx.coroutines.launch
 import me.xdrop.fuzzywuzzy.FuzzySearch
+import xyz.retrixe.salezy.api.Api
 import xyz.retrixe.salezy.api.entities.InventoryItem
 import xyz.retrixe.salezy.state.LocalSnackbarHostState
-import xyz.retrixe.salezy.state.TempState
 import xyz.retrixe.salezy.ui.components.SearchField
 import xyz.retrixe.salezy.ui.dialogs.AddEditItemDialog
 import xyz.retrixe.salezy.utils.asDecimal
 
 @Composable
 fun InventoryScreen() {
-    val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = LocalSnackbarHostState.current
 
     var query by remember { mutableStateOf("") }
-    var inventoryItems by remember { mutableStateOf<List<InventoryItem>?>(TempState.inventoryItems) }
+    var inventoryItems by remember { mutableStateOf<List<InventoryItem>?>(null) }
+
+    LaunchedEffect(true) {
+        try {
+            inventoryItems = Api.instance.getInventoryItems().toList()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            snackbarHostState.showSnackbar(
+                message = "Failed to load inventory items! ${e.message}",
+                actionLabel = "Hide",
+                duration = SnackbarDuration.Indefinite)
+        }
+    }
 
     // TODO: Server side search
     val inventoryItemsFiltered = if (query.isNotBlank()) {
@@ -102,24 +112,22 @@ fun InventoryScreen() {
                                         Text("UPC ${item.upc}", fontSize = 20.sp)
                                         Text("$${item.sellingPrice.asDecimal()} | ${item.quantity} in stock")
                                     }
-                                    if (item.imageUrl != null) KamelImage(
+                                    if (item.imageId != null) KamelImage(
                                         modifier = Modifier.size(160.dp)
                                             .align(Alignment.CenterHorizontally),
                                         contentDescription = item.name,
-                                        resource = asyncPainterResource(data = item.imageUrl),
+                                        resource = asyncPainterResource(data =
+                                            Api.instance.getAssetUrl(item.imageId)),
                                         animationSpec = tween(),
                                         onLoading = { _ ->
                                             Box(Modifier.fillMaxSize(), Alignment.Center) {
                                                 CircularProgressIndicator()
                                             }
                                         },
-                                        onFailure = { exception ->
-                                            coroutineScope.launch {
-                                                snackbarHostState.showSnackbar(
-                                                    message = exception.message.toString(),
-                                                    actionLabel = "Hide",
-                                                    duration = SnackbarDuration.Short
-                                                )
+                                        onFailure = { ex ->
+                                            Box(Modifier.fillMaxSize(), Alignment.Center) {
+                                                Text("Failed to load image!")
+                                                ex.printStackTrace()
                                             }
                                         }
                                     ) else Box(Modifier.size(160.dp))

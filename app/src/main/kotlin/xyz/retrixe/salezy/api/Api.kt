@@ -31,7 +31,6 @@ class Api {
         }
         install(DefaultRequest) {
             url(this@Api.url)
-            url.appendPathSegments("api")
             headers["Authorization"] = token
             contentType(ContentType.Application.Json)
         }
@@ -125,7 +124,7 @@ class Api {
     suspend fun patchInventoryItem(inventoryItem: EphemeralInventoryItem): InventoryItem {
         val response = client.patch("inventoryItem") {
             url.appendPathSegments(inventoryItem.upc.toString())
-            setBody(InventoryItem)
+            setBody(inventoryItem)
         }
         if (!response.status.isSuccess()) {
             throw ApiException(response.body<ErrorResponseBody>().error)
@@ -133,4 +132,7 @@ class Api {
             return response.body<InventoryItem>()
         }
     }
+
+    fun getAssetUrl(assetId: String) =
+        URLBuilder(url).appendPathSegments("asset", assetId).buildString()
 }

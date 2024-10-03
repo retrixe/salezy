@@ -20,3 +20,5 @@ fun Instant.formatted(): String = DateTimeFormatter
     .withLocale(Locale.getDefault())
     .withZone(ZoneId.systemDefault()) // UTC -> system default
     .format(this)
+
+fun ByteArray.toBase64String(): String = Base64.getEncoder().encodeToString(this)

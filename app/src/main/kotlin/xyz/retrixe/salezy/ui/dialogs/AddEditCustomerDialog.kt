@@ -15,7 +15,7 @@ import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.launch
 import xyz.retrixe.salezy.api.Api
 import xyz.retrixe.salezy.api.entities.Customer
-import xyz.retrixe.salezy.api.entities.EphemeralCustomer
+import xyz.retrixe.salezy.api.entities.ephemeral.EphemeralCustomer
 import xyz.retrixe.salezy.state.LocalSnackbarHostState
 
 // TODO (low priority): Dedup add/edit dialog calls

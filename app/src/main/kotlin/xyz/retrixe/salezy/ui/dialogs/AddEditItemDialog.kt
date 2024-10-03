@@ -20,8 +20,12 @@ import io.github.vinceglb.filekit.core.*
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
 import kotlinx.coroutines.launch
+import xyz.retrixe.salezy.api.Api
 import xyz.retrixe.salezy.api.entities.InventoryItem
+import xyz.retrixe.salezy.api.entities.ephemeral.EphemeralInventoryItem
+import xyz.retrixe.salezy.state.LocalSnackbarHostState
 import xyz.retrixe.salezy.utils.asDecimal
+import xyz.retrixe.salezy.utils.toBase64String
 import xyz.retrixe.salezy.utils.toDecimalLong
 
 // TODO (low priority): Dedup add/edit dialog calls
@@ -34,6 +38,7 @@ fun AddEditItemDialog(
     onSubmit: (InventoryItem) -> Unit
 ) {
     val scope = rememberCoroutineScope()
+    val snackbarHostState = LocalSnackbarHostState.current
 
     var name by remember { mutableStateOf(Pair("", "")) }
     var image by remember { mutableStateOf<PlatformFile?>(null) }
@@ -57,24 +62,36 @@ fun AddEditItemDialog(
         image = FileKit.pickFile(PickerType.Image, PickerMode.Single, "Pick an image")
     }
 
-    fun onSave() {
+    fun onSave() = scope.launch {
         if (name.first.isBlank()) name = Pair(name.first, "No name provided!")
         if (upc.first.isBlank()) upc = Pair(upc.first, "No UPC provided!")
         if (sku.first.isBlank()) sku = Pair(sku.first, "No SKU provided!")
         if (costPrice.first.isBlank()) costPrice = Pair(costPrice.first, "No cost price provided!")
         if (sellingPrice.first.isBlank()) sellingPrice = Pair(sellingPrice.first, "No selling price provided!")
         if (quantity.first.isBlank()) quantity = Pair(quantity.first, "No quantity provided!")
-        // FIXME: Call the API here to edit or update, then return new inventory item from API
-        onSubmit(InventoryItem(
-            if (name.second.isEmpty()) name.first else return,
-            null,
-            if (upc.second.isEmpty()) upc.first.toLong() else return,
-            if (sku.second.isEmpty()) sku.first else return,
-            if (costPrice.second.isEmpty()) costPrice.first.toDecimalLong() else return,
-            if (sellingPrice.second.isEmpty()) sellingPrice.first.toDecimalLong() else return,
-            if (quantity.second.isEmpty()) quantity.first.toInt() else return,
-        ))
-        onDismiss()
+        val ephemeralInventoryItem = EphemeralInventoryItem(
+            if (name.second.isEmpty()) name.first else return@launch,
+            initialValue?.imageId,
+            image?.file?.readBytes()?.toBase64String(),
+            if (upc.second.isEmpty()) upc.first.toLong() else return@launch,
+            if (sku.second.isEmpty()) sku.first else return@launch,
+            if (costPrice.second.isEmpty()) costPrice.first.toDecimalLong() else return@launch,
+            if (sellingPrice.second.isEmpty()) sellingPrice.first.toDecimalLong() else return@launch,
+            if (quantity.second.isEmpty()) quantity.first.toInt() else return@launch,
+        )
+        try {
+            val inventoryItem =
+                if (initialValue == null) Api.instance.postInventoryItem(ephemeralInventoryItem)
+                else Api.instance.patchInventoryItem(ephemeralInventoryItem)
+            onSubmit(inventoryItem)
+            onDismiss()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            snackbarHostState.showSnackbar(
+                message = "Failed to save item! ${e.message}",
+                actionLabel = "Hide",
+                duration = SnackbarDuration.Long)
+        }
     }
 
     AnimatedVisibility(open) {
@@ -195,8 +212,8 @@ fun AddEditItemDialog(
                         val resource =
                             if (imageFile != null)
                                 asyncPainterResource(data = imageFile)
-                            else if (initialValue?.imageUrl != null)
-                                asyncPainterResource(data = initialValue.imageUrl)
+                            else if (initialValue?.imageId != null)
+                                asyncPainterResource(data = Api.instance.getAssetUrl(initialValue.imageId))
                             else null
                         if (resource == null) Box(Modifier.fillMaxSize(), Alignment.Center) {
                             Text("No image selected!")
