@@ -7,6 +7,11 @@ import {
   patchCustomerHandler,
   postCustomerHandler,
 } from './endpoints/customers.js'
+import {
+  getInventoryItemsHandler,
+  patchInventoryItemHandler,
+  postInventoryItemHandler,
+} from './endpoints/inventoryItems.js'
 
 export const server = fastify({ logger: true })
 
@@ -20,6 +25,10 @@ server.post('/settings', postSettingsHandler)
 server.get('/customers', getCustomersHandler)
 server.post('/customer', postCustomerHandler)
 server.patch('/customer/:id', patchCustomerHandler)
+
+server.get('/inventoryItems', getInventoryItemsHandler)
+server.post('/inventoryItem', postInventoryItemHandler)
+server.patch('/inventoryItem/:upc', patchInventoryItemHandler)
 
 try {
   await server.listen({ port: config.port })

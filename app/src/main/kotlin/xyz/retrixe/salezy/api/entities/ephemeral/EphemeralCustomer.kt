@@ -1,9 +1,8 @@
-package xyz.retrixe.salezy.api.entities
+package xyz.retrixe.salezy.api.entities.ephemeral
 
 import kotlinx.serialization.Serializable
 
-@Serializable data class Customer(
-    val id: Int,
+@Serializable data class EphemeralCustomer(
     val phone: String,
     val name: String?,
     val email: String?,

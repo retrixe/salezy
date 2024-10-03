@@ -14,6 +14,12 @@ await sql`CREATE TABLE IF NOT EXISTS users (
 await sql`INSERT INTO users (username, password) VALUES ('admin', ${await hash('admin')})
           ON CONFLICT DO NOTHING;`
 
+// Assets table
+await sql`CREATE TABLE IF NOT EXISTS assets (
+  hash VARCHAR(32) PRIMARY KEY NOT NULL,
+  data BYTEA NOT NULL
+);`
+
 // Customers table
 await sql`CREATE TABLE IF NOT EXISTS customers (
   id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -23,6 +29,17 @@ await sql`CREATE TABLE IF NOT EXISTS customers (
   address TEXT NULL,
   tax_id_number VARCHAR(64) NULL,
   notes TEXT NULL
+);`
+
+// Inventory items
+await sql`CREATE TABLE IF NOT EXISTS inventory_items (
+  name VARCHAR(320) NOT NULL,
+  image_id VARCHAR(32) NULL REFERENCES assets (hash) ON DELETE RESTRICT,
+  upc BIGINT PRIMARY KEY NOT NULL,
+  sku VARCHAR(64) NOT NULL,
+  cost_price BIGINT NOT NULL,
+  selling_price BIGINT NOT NULL,
+  quantity INT NOT NULL
 );`
 
 // Settings table

@@ -11,7 +11,9 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import xyz.retrixe.salezy.api.entities.Customer
-import xyz.retrixe.salezy.api.entities.EphemeralCustomer
+import xyz.retrixe.salezy.api.entities.InventoryItem
+import xyz.retrixe.salezy.api.entities.ephemeral.EphemeralCustomer
+import xyz.retrixe.salezy.api.entities.ephemeral.EphemeralInventoryItem
 import xyz.retrixe.salezy.state.LocalConfiguration
 import xyz.retrixe.salezy.state.RemoteSettings
 
@@ -97,6 +99,38 @@ class Api {
             throw ApiException(response.body<ErrorResponseBody>().error)
         } else {
             return response.body<Customer>()
+        }
+    }
+
+    suspend fun getInventoryItems(): Sequence<InventoryItem> {
+        val response = client.get("inventoryItems")
+        if (!response.status.isSuccess()) {
+            throw ApiException(response.body<ErrorResponseBody>().error)
+        } else {
+            return response.body<Sequence<InventoryItem>>()
+        }
+    }
+
+    suspend fun postInventoryItem(inventoryItem: EphemeralInventoryItem): InventoryItem {
+        val response = client.post("inventoryItem") {
+            setBody(inventoryItem)
+        }
+        if (!response.status.isSuccess()) {
+            throw ApiException(response.body<ErrorResponseBody>().error)
+        } else {
+            return response.body<InventoryItem>()
+        }
+    }
+
+    suspend fun patchInventoryItem(inventoryItem: EphemeralInventoryItem): InventoryItem {
+        val response = client.patch("inventoryItem") {
+            url.appendPathSegments(inventoryItem.upc.toString())
+            setBody(InventoryItem)
+        }
+        if (!response.status.isSuccess()) {
+            throw ApiException(response.body<ErrorResponseBody>().error)
+        } else {
+            return response.body<InventoryItem>()
         }
     }
 }
