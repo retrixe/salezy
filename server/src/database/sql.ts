@@ -16,7 +16,7 @@ await sql`INSERT INTO users (username, password) VALUES ('admin', ${await hash('
 
 // Customers table
 await sql`CREATE TABLE IF NOT EXISTS customers (
-  id SERIAL PRIMARY KEY,
+  id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   name VARCHAR(320) NULL,
   email VARCHAR(320) NULL,
   phone VARCHAR(20) NULL,
@@ -24,7 +24,6 @@ await sql`CREATE TABLE IF NOT EXISTS customers (
   tax_id_number VARCHAR(64) NULL,
   notes TEXT NULL
 );`
-// TODO: Provide indexes...
 
 // Settings table
 await sql`CREATE TABLE IF NOT EXISTS settings (

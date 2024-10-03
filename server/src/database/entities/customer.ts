@@ -2,13 +2,15 @@ import { ajv } from '../../utils.js'
 
 export interface Customer {
   id: number
-  phone?: string
-  name?: string
-  email?: string
-  address?: string
-  taxIdNumber?: string
-  notes?: string
+  phone: string | null
+  name: string | null
+  email: string | null
+  address: string | null
+  taxIdNumber: string | null
+  notes: string | null
 }
+
+export type EphemeralCustomer = Omit<Customer, 'id'>
 
 export const validateCustomer = ajv.compile<Customer>({
   type: 'object',
@@ -24,3 +26,8 @@ export const validateCustomer = ajv.compile<Customer>({
   required: ['id'],
   additionalProperties: false,
 })
+
+const { ...ephemeralCustomerSchema } = validateCustomer.schema as Record<string, any>
+delete ephemeralCustomerSchema.required
+delete ephemeralCustomerSchema.properties.id
+export const validateEphemeralCustomer = ajv.compile<EphemeralCustomer>(ephemeralCustomerSchema)
