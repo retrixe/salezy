@@ -33,7 +33,7 @@ fun InventoryScreen() {
 
     LaunchedEffect(true) {
         try {
-            inventoryItems = Api.instance.getInventoryItems().toList()
+            inventoryItems = Api.getInventoryItems().toList()
         } catch (e: Exception) {
             e.printStackTrace()
             snackbarHostState.showSnackbar(
@@ -117,7 +117,7 @@ fun InventoryScreen() {
                                             .align(Alignment.CenterHorizontally),
                                         contentDescription = item.name,
                                         resource = asyncPainterResource(data =
-                                            Api.instance.getAssetUrl(item.imageId)),
+                                            Api.getAssetUrl(item.imageId)),
                                         animationSpec = tween(),
                                         onLoading = { _ ->
                                             Box(Modifier.fillMaxSize(), Alignment.Center) {

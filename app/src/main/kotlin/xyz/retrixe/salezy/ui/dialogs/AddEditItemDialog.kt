@@ -81,8 +81,8 @@ fun AddEditItemDialog(
         )
         try {
             val inventoryItem =
-                if (initialValue == null) Api.instance.postInventoryItem(ephemeralInventoryItem)
-                else Api.instance.patchInventoryItem(ephemeralInventoryItem)
+                if (initialValue == null) Api.postInventoryItem(ephemeralInventoryItem)
+                else Api.patchInventoryItem(ephemeralInventoryItem)
             onSubmit(inventoryItem)
             onDismiss()
         } catch (e: Exception) {
@@ -213,7 +213,7 @@ fun AddEditItemDialog(
                             if (imageFile != null)
                                 asyncPainterResource(data = imageFile)
                             else if (initialValue?.imageId != null)
-                                asyncPainterResource(data = Api.instance.getAssetUrl(initialValue.imageId))
+                                asyncPainterResource(data = Api.getAssetUrl(initialValue.imageId))
                             else null
                         if (resource == null) Box(Modifier.fillMaxSize(), Alignment.Center) {
                             Text("No image selected!")

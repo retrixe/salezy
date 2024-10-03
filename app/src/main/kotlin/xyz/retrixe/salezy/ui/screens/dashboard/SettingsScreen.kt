@@ -48,7 +48,7 @@ fun SettingsScreen(setRemoteSettings: (RemoteSettings) -> Unit) {
             val newSettings = RemoteSettings(
                 if (taxRate.second.isEmpty()) taxRate.first.toDecimalLong() else return@launch
             )
-            Api.instance.postSettings(newSettings)
+            Api.postSettings(newSettings)
             setRemoteSettings(newSettings)
         } catch (e: Exception) {
             e.printStackTrace()

@@ -17,7 +17,6 @@ import me.xdrop.fuzzywuzzy.FuzzySearch
 import xyz.retrixe.salezy.api.Api
 import xyz.retrixe.salezy.api.entities.Customer
 import xyz.retrixe.salezy.state.LocalSnackbarHostState
-import xyz.retrixe.salezy.state.TempState
 import xyz.retrixe.salezy.ui.components.HeadTableCell
 import xyz.retrixe.salezy.ui.components.PlainTooltipBox
 import xyz.retrixe.salezy.ui.components.SearchField
@@ -29,11 +28,11 @@ fun CustomersScreen() {
     val snackbarHostState = LocalSnackbarHostState.current
 
     var query by remember { mutableStateOf("") }
-    var customers by remember { mutableStateOf<List<Customer>?>(TempState.customers) }
+    var customers by remember { mutableStateOf<List<Customer>?>(null) }
 
     LaunchedEffect(true) {
         try {
-            customers = Api.instance.getCustomers().toList()
+            customers = Api.getCustomers().toList()
         } catch (e: Exception) {
             e.printStackTrace()
             snackbarHostState.showSnackbar(

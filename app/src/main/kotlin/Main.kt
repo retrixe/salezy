@@ -37,7 +37,7 @@ fun App() {
             localConfiguration = loadConfiguration()
         else saveConfiguration(localConfiguration)
     }
-    SideEffect { Api.instance.url = localConfiguration.instanceUrl }
+    SideEffect { Api.url = localConfiguration.instanceUrl }
 
     AppTheme {
         Scaffold(
@@ -67,7 +67,7 @@ fun App() {
                         setTopBar = { topBar = it },
                         setRemoteSettings = { remoteSettings = it },
                         logout = {
-                            Api.instance.token = ""
+                            Api.token = ""
                             remoteSettings = RemoteSettings.default
                             screen = Screens.LOGIN
                         }

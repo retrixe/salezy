@@ -17,11 +17,7 @@ import xyz.retrixe.salezy.api.entities.ephemeral.EphemeralInventoryItem
 import xyz.retrixe.salezy.state.LocalConfiguration
 import xyz.retrixe.salezy.state.RemoteSettings
 
-class Api {
-    companion object {
-        val instance = Api()
-    }
-
+object Api {
     var token = ""
     var url = LocalConfiguration.default.instanceUrl
     private val client = HttpClient(Java) {

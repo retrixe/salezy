@@ -60,8 +60,8 @@ fun AddEditCustomerDialog(
             notes.ifBlank { null })
         try {
             val customer =
-                if (id == -1) Api.instance.postCustomer(ephemeralCustomer)
-                else Api.instance.patchCustomer(id, ephemeralCustomer)
+                if (id == -1) Api.postCustomer(ephemeralCustomer)
+                else Api.patchCustomer(id, ephemeralCustomer)
             onSubmit(customer)
             onDismiss()
         } catch (e: Exception) {
