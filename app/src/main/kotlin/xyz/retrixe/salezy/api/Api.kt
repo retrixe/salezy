@@ -117,9 +117,9 @@ object Api {
         }
     }
 
-    suspend fun patchInventoryItem(inventoryItem: EphemeralInventoryItem): InventoryItem {
+    suspend fun patchInventoryItem(upc: Long, inventoryItem: EphemeralInventoryItem): InventoryItem {
         val response = client.patch("inventoryItem") {
-            url.appendPathSegments(inventoryItem.upc.toString())
+            url.appendPathSegments(upc.toString())
             setBody(inventoryItem)
         }
         if (!response.status.isSuccess()) {

@@ -82,7 +82,7 @@ fun AddEditItemDialog(
         try {
             val inventoryItem =
                 if (initialValue == null) Api.postInventoryItem(ephemeralInventoryItem)
-                else Api.patchInventoryItem(ephemeralInventoryItem)
+                else Api.patchInventoryItem(initialValue.upc, ephemeralInventoryItem)
             onSubmit(inventoryItem)
             onDismiss()
         } catch (e: Exception) {
