@@ -54,7 +54,7 @@ export const patchCustomerHandler: RouteHandlerMethod = async (request, reply) =
   }
 
   const { id } = request.params as Record<string, string>
-  if (!validateEphemeralCustomer(request.body) || typeof id !== 'string') {
+  if (!validateEphemeralCustomer(request.body) || !/^\d+$/.test(id)) {
     reply.statusCode = 400
     return { error: 'Invalid request body!' }
   }
