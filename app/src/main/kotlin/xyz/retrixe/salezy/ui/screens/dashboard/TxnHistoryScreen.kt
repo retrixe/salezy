@@ -22,6 +22,7 @@ import xyz.retrixe.salezy.utils.toInstant
 import me.xdrop.fuzzywuzzy.FuzzySearch
 import xyz.retrixe.salezy.api.entities.Invoice
 
+// FIXME: Remove TempState references
 @Composable
 fun TxnHistoryScreen() {
     var query by remember { mutableStateOf("") }

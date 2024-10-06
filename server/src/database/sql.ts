@@ -67,7 +67,7 @@ await sql`CREATE TABLE IF NOT EXISTS audit_log (
   actor VARCHAR(320) NOT NULL,
   action INT NOT NULL, /* 0 - create; 1 - delete; 2 - update */
   entity VARCHAR(64) NOT NULL,
-  entity_id INT NOT NULL,
+  entity_id VARCHAR(64) NOT NULL,
   prev_value JSONB NULL,
   new_value JSONB NOT NULL,
   timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW()

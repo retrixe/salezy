@@ -24,6 +24,7 @@ import xyz.retrixe.salezy.utils.asDecimal
 import xyz.retrixe.salezy.utils.toInstant
 import xyz.retrixe.salezy.utils.formatted
 
+// FIXME: Remove TempState references
 @Composable
 fun GiftCardsScreen() {
     var query by remember { mutableStateOf("") }

@@ -3,7 +3,6 @@ package xyz.retrixe.salezy.state
 import xyz.retrixe.salezy.api.entities.*
 import java.time.Instant
 
-// FIXME: Remove all references to these states!
 object TempState {
     val giftCards = listOf(
         GiftCard("EUI2FVEU", 10, 10, 0, 0),

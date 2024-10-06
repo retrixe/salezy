@@ -8,6 +8,7 @@ import {
   validateEphemeralInventoryItem,
 } from '../database/entities/inventoryItem.js'
 import { hash } from 'crypto'
+import { type PostgresError } from 'postgres'
 
 export const getInventoryItemsHandler: RouteHandlerMethod = async (request, reply) => {
   if (!verifyRequest(request)) {
@@ -46,7 +47,14 @@ export const postInventoryItemHandler: RouteHandlerMethod = async (request, repl
       await sql`INSERT INTO assets (hash, data) VALUES (${sha256sum}, ${data}) ON CONFLICT DO NOTHING;`
       item.imageId = sha256sum
     }
-    await sql`INSERT INTO inventory_items ${sql(item)};`
+    try {
+      await sql`INSERT INTO inventory_items ${sql(item)};`
+    } catch (e) {
+      if ((e as PostgresError).code === '23505' /* UNIQUE VIOLATION */) {
+        reply.statusCode = 409
+        return { error: 'Inventory item with this UPC already exists!' }
+      } else throw e
+    }
 
     await sql`INSERT INTO audit_log (actor, action, entity, entity_id, prev_value, new_value) VALUES (
       ${user.username}, 0, 'inventory_item', ${item.upc}, NULL, ${item as any}::jsonb
@@ -76,7 +84,7 @@ export const patchInventoryItemHandler: RouteHandlerMethod = async (request, rep
       reply.statusCode = 404
       return { error: 'Inventory item not found!' }
     }
-    const { image, ...rest } = body
+    const { image, upc: _, ...rest } = body // Prohibit UPC from being modified
     const newItem = rest as InventoryItem
     if (image) {
       const data = Buffer.from(image, 'base64')
