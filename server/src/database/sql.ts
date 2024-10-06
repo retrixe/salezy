@@ -5,7 +5,14 @@ import { postgresConf } from '../config.js'
 const sql = postgres({
   ...postgresConf,
   transform: postgres.camel,
-  types: { bigint: postgres.BigInt },
+  types: {
+    bigint: {
+      to: 20,
+      from: [20],
+      parse: (x: any) => Number(x),
+      serialize: (x: any) => x.toString(),
+    },
+  },
 })
 
 // https://stackoverflow.com/questions/4107915/postgresql-default-constraint-names/4108266#4108266

@@ -14,13 +14,7 @@ export const getInventoryItemsHandler: RouteHandlerMethod = async (request, repl
     reply.statusCode = 401
     return { error: 'Invalid authorization token!' }
   }
-  // FIXME pls fix bigint shenanigans bigints should be represent as numbers
-  const inventoryItems = (await sql<InventoryItem[]>`SELECT * FROM inventory_items;`).map(c => ({
-    ...c,
-    upc: Number(c.upc),
-    costPrice: Number(c.costPrice),
-    sellingPrice: Number(c.sellingPrice),
-  }))
+  const inventoryItems = await sql<InventoryItem[]>`SELECT * FROM inventory_items;`
   const invalidInventoryItems = inventoryItems.filter(c => !validateInventoryItem(c))
   if (invalidInventoryItems.length) {
     reply.statusCode = 500
@@ -52,7 +46,6 @@ export const postInventoryItemHandler: RouteHandlerMethod = async (request, repl
       await sql`INSERT INTO assets (hash, data) VALUES (${sha256sum}, ${data}) ON CONFLICT DO NOTHING;`
       item.imageId = sha256sum
     }
-    // FIXME: bigint shenanigans
     await sql`INSERT INTO inventory_items ${sql(item)};`
 
     await sql`INSERT INTO audit_log (actor, action, entity, entity_id, prev_value, new_value) VALUES (
@@ -79,10 +72,6 @@ export const patchInventoryItemHandler: RouteHandlerMethod = async (request, rep
   const body = request.body
   return await sql.begin(async sql => {
     const [oldItem]: InventoryItem[] = await sql`SELECT * FROM inventory_items WHERE upc = ${upc};`
-    // FIXME: AAAAA
-    oldItem.upc = Number(oldItem.upc)
-    oldItem.costPrice = Number(oldItem.costPrice)
-    oldItem.sellingPrice = Number(oldItem.sellingPrice)
     if (!oldItem) {
       reply.statusCode = 404
       return { error: 'Inventory item not found!' }
