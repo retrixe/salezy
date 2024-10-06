@@ -38,29 +38,29 @@ export const postInventoryItemHandler: RouteHandlerMethod = async (request, repl
   }
 
   const body = request.body
-  return await sql.begin(async sql => {
-    const { image, ...rest } = body
-    const item = rest as InventoryItem
-    if (image) {
-      const data = Buffer.from(image, 'base64')
-      const sha256sum = hash('sha256', data, 'hex')
-      await sql`INSERT INTO assets (hash, data) VALUES (${sha256sum}, ${data}) ON CONFLICT DO NOTHING;`
-      item.imageId = sha256sum
-    }
-    try {
+  try {
+    return await sql.begin(async sql => {
+      const { image, ...rest } = body
+      const item = rest as InventoryItem
+      if (image) {
+        const data = Buffer.from(image, 'base64')
+        const sha256sum = hash('sha256', data, 'hex')
+        await sql`INSERT INTO assets (hash, data) VALUES (${sha256sum}, ${data}) ON CONFLICT DO NOTHING;`
+        item.imageId = sha256sum
+      }
       await sql`INSERT INTO inventory_items ${sql(item)};`
-    } catch (e) {
-      if ((e as PostgresError).code === '23505' /* UNIQUE VIOLATION */) {
-        reply.statusCode = 409
-        return { error: 'Inventory item with this UPC already exists!' }
-      } else throw e
-    }
 
-    await sql`INSERT INTO audit_log (actor, action, entity, entity_id, prev_value, new_value) VALUES (
-      ${user.username}, 0, 'inventory_item', ${item.upc}, NULL, ${item as any}::jsonb
-    );`
-    return item
-  })
+      await sql`INSERT INTO audit_log (actor, action, entity, entity_id, prev_value, new_value) VALUES (
+        ${user.username}, 0, 'inventory_item', ${item.upc}, NULL, ${item as any}::jsonb
+      );`
+      return item
+    })
+  } catch (e) {
+    if ((e as PostgresError).code === '23505' /* UNIQUE VIOLATION */) {
+      reply.statusCode = 409
+      return { error: 'Inventory item with this UPC already exists!' }
+    } else throw e
+  }
 }
 
 export const patchInventoryItemHandler: RouteHandlerMethod = async (request, reply) => {

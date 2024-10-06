@@ -114,17 +114,7 @@ fun AddEditItemDialog(
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         OutlinedTextField(
-                            modifier = Modifier.fillMaxWidth(),
-                            value = name.first, onValueChange = { name = Pair(it, "") },
-                            label = { Text("Name*") },
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                            isError = name.second.isNotEmpty(),
-                            supportingText = if (name.second.isNotEmpty()) {
-                                @Composable { Text(name.second) }
-                            } else null
-                        )
-                        OutlinedTextField(
+                            readOnly = initialValue != null,
                             modifier = Modifier.fillMaxWidth(),
                             value = upc.first,
                             onValueChange = {
@@ -136,6 +126,17 @@ fun AddEditItemDialog(
                             isError = upc.second.isNotEmpty(),
                             supportingText = if (upc.second.isNotEmpty()) {
                                 @Composable { Text(upc.second) }
+                            } else null
+                        )
+                        OutlinedTextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = name.first, onValueChange = { name = Pair(it, "") },
+                            label = { Text("Name*") },
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                            isError = name.second.isNotEmpty(),
+                            supportingText = if (name.second.isNotEmpty()) {
+                                @Composable { Text(name.second) }
                             } else null
                         )
                         OutlinedTextField(
