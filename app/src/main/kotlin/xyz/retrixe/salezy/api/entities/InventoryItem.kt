@@ -1,6 +1,9 @@
+@file:UseSerializers(LongAsStringSerializer::class)
 package xyz.retrixe.salezy.api.entities
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
+import kotlinx.serialization.builtins.LongAsStringSerializer
 
 @Serializable data class InventoryItem(
     val name: String,

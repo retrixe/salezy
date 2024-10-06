@@ -70,9 +70,8 @@ export const patchInventoryItemHandler: RouteHandlerMethod = async (request, rep
     return { error: 'Invalid authorization token!' }
   }
 
-  const { upc: upcStr } = request.params as Record<string, any>
-  const upc = +upcStr
-  if (!validateEphemeralInventoryItem(request.body) || typeof upc !== 'number' || isNaN(upc)) {
+  const { upc } = request.params as Record<string, string>
+  if (!validateEphemeralInventoryItem(request.body) || !/^\d+$/.test(upc)) {
     reply.statusCode = 400
     return { error: 'Invalid request body!' }
   }
