@@ -19,6 +19,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.launch
+import xyz.retrixe.salezy.api.entities.Customer
+import xyz.retrixe.salezy.api.entities.InventoryItem
 import xyz.retrixe.salezy.api.entities.Invoice
 import xyz.retrixe.salezy.api.entities.InvoicedItem
 import xyz.retrixe.salezy.state.LocalSnackbarHostState
@@ -31,35 +33,40 @@ import xyz.retrixe.salezy.ui.dialogs.AddEditCustomerDialog
 import xyz.retrixe.salezy.utils.asDecimal
 import java.time.Instant
 
+data class TempInvoiceItem(val inventoryItem: InventoryItem, val count: Int) {
+    fun asInvoicedItem() = InvoicedItem(inventoryItem.upc, count)
+}
+
 @Composable
 fun PointOfSaleScreen() {
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = LocalSnackbarHostState.current
 
-    val invoiceItems = remember { mutableStateListOf<InvoicedItem>() }
+    val invoiceItems = remember { mutableStateMapOf<Long, TempInvoiceItem>() }
     var addInvoiceItemField by remember { mutableStateOf("") }
-    var customerId by remember { mutableStateOf<Int?>(null) }
+    var customer by remember { mutableStateOf<Customer?>(null) }
     var notes by remember { mutableStateOf("") }
     var overrideTaxRateValue by remember { mutableStateOf("") }
 
     fun addInvoiceItem() {
+        if (addInvoiceItemField.isBlank()) return
         val fieldAsUPC = addInvoiceItemField.toLongOrNull()
-        val invoiceItemByUPC =
-            if (fieldAsUPC != null) invoiceItems.indexOfFirst { it.id == fieldAsUPC }
-            else -1
-        val inventoryItemByUPC =
-            if (fieldAsUPC != null) TempState.inventoryItems.find { it.upc == fieldAsUPC }
-            else null
+        val existingInvoiceItem = fieldAsUPC?.let { invoiceItems[fieldAsUPC] }
+        if (existingInvoiceItem != null) {
+            invoiceItems[fieldAsUPC] =
+                existingInvoiceItem.copy(count = existingInvoiceItem.count + 1)
+            return
+        }
 
-        if (fieldAsUPC != null && inventoryItemByUPC != null && invoiceItemByUPC == -1) {
-            invoiceItems.add(InvoicedItem(fieldAsUPC, 1))
-        } else if (fieldAsUPC != null && inventoryItemByUPC != null) {
-            invoiceItems[invoiceItemByUPC] = invoiceItems[invoiceItemByUPC]
-                .copy(count = invoiceItems[invoiceItemByUPC].count + 1)
+        // FIXME link to API
+        val matchingInventoryItem =
+            if (fieldAsUPC != null) TempState.inventoryItems.find { it.upc == fieldAsUPC }
+            else TempState.inventoryItems.find { it.sku == addInvoiceItemField }
+        if (matchingInventoryItem != null) {
+            invoiceItems[matchingInventoryItem.upc] = TempInvoiceItem(matchingInventoryItem, 1)
         } else {
-            // FIXME: Search for SKUs before resorting to popover
             coroutineScope.launch { snackbarHostState.showSnackbar(
-                message = "Item not found! Enter valid UPC.",
+                message = "Item not found! Enter valid UPC or SKU.",
                 actionLabel = "Hide",
                 duration = SnackbarDuration.Short) }
         }
@@ -73,15 +80,15 @@ fun PointOfSaleScreen() {
         label = "Add New Customer",
         initialValue = null,
         onDismiss = { openNewCustomerDialog = false },
-        onSubmit = { TempState.customers.add(it); customerId = it.id })
+        onSubmit = { customer = it })
 
     var openEditCustomerDialog by remember { mutableStateOf(false) }
     AddEditCustomerDialog(
         open = openEditCustomerDialog,
         label = "Edit Customer",
-        initialValue = TempState.customers.find { it.id == customerId },
+        initialValue = customer,
         onDismiss = { openEditCustomerDialog = false },
-        onSubmit = { TempState.customers[TempState.customers.indexOfFirst { c -> c.id == customerId }] = it })
+        onSubmit = { customer = it })
 
     var openExistingCustomerDialog by remember { mutableStateOf(false) }
     // FIXME: this is bad.. implement search function lol
@@ -97,12 +104,12 @@ fun PointOfSaleScreen() {
                 ) {
                     Text("Search for Customer", fontSize = 28.sp)
                     LazyColumn {
-                        itemsIndexed(TempState.customers) { index, customer ->
+                        itemsIndexed(TempState.customers) { _, tempCustomer ->
                             TextButton(onClick = {
-                                customerId = customer.id
+                                customer = tempCustomer
                                 openExistingCustomerDialog = false
                             }) {
-                                Text("${customer.name ?: "N/A"} (${customer.phone})")
+                                Text("${tempCustomer.name ?: "N/A"} (${tempCustomer.phone})")
                             }
                         }
                     }
@@ -124,17 +131,18 @@ fun PointOfSaleScreen() {
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
                     Text("Payment", fontSize = 28.sp)
-                    val total = invoiceItems.sumOf { item ->
-                        TempState.inventoryItems.find { it.upc == item.id }!!.sellingPrice * item.count }
+                    val total = invoiceItems.values
+                        .sumOf { item -> item.inventoryItem.sellingPrice * item.count }
                     val tax = (total * overrideTaxRateValue.toInt()) / 100
                     val totalWithTax = total + tax
                     Text("Total incl. tax: \$${totalWithTax.asDecimal()}")
                     Button(onClick = {
                         openProceedPaymentDialog = false
+                        // FIXME: Remove TempState reference
                         TempState.invoices.add(Invoice(
                             id = TempState.invoices.size + 1,
-                            customerId = customerId!!,
-                            items = invoiceItems,
+                            customerId = customer!!.id,
+                            items = invoiceItems.map { it.value.asInvoicedItem() },
                             notes = notes.ifBlank { null },
                             taxRate = overrideTaxRateValue.toInt(),
                             beforeTaxCost = total,
@@ -160,31 +168,32 @@ fun PointOfSaleScreen() {
                 HeadTableCell("Qty", .1f)
             }
             LazyColumn(Modifier.weight(1f)) {
-                itemsIndexed(invoiceItems) { index, item ->
+                itemsIndexed(invoiceItems.toList()) { _, itemPair ->
+                    val itemId = itemPair.first
+                    val item = itemPair.second
                     HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.inverseSurface)
                     Row(Modifier.fillMaxWidth()) {
                         Row(Modifier.widthIn(min = 144.dp)) {
                             PlainTooltipBox("Add") {
-                                IconButton(onClick = { invoiceItems[index] = item.copy(count = item.count + 1) }) {
+                                IconButton(onClick = { invoiceItems[itemId] = item.copy(count = item.count + 1) }) {
                                     Icon(imageVector = Icons.Filled.Add, contentDescription = "Add")
                                 }
                             }
                             PlainTooltipBox("Remove") {
                                 IconButton(onClick = {
-                                    if (item.count == 1) invoiceItems.removeAt(index)
-                                    else invoiceItems[index] = item.copy(count = item.count - 1)
+                                    if (item.count == 1) invoiceItems.remove(itemId)
+                                    else invoiceItems[itemId] = item.copy(count = item.count - 1)
                                 }) {
                                     Icon(imageVector = Icons.Filled.Remove, contentDescription = "Remove")
                                 }
                             }
                             PlainTooltipBox("Delete") {
-                                IconButton(onClick = { invoiceItems.removeAt(index) }) {
+                                IconButton(onClick = { invoiceItems.remove(itemId) }) {
                                     Icon(imageVector = Icons.Filled.Delete, contentDescription = "Delete")
                                 }
                             }
                         }
-                        // FIXME item out of stock checks
-                        val inventoryItem = TempState.inventoryItems.find { it.upc == item.id }!! // FIXME: Drop assert
+                        val inventoryItem = item.inventoryItem
                         TableCell(text = inventoryItem.name, weight = .25f)
                         TableCell(text = inventoryItem.upc.toString(), weight = .25f)
                         TableCell(text = inventoryItem.sku, weight = .25f)
@@ -195,7 +204,7 @@ fun PointOfSaleScreen() {
             }
 
             OutlinedTextField(value = addInvoiceItemField, onValueChange = { addInvoiceItemField = it },
-                label = { Text("Add item by UPC") },
+                label = { Text("Add item by UPC or SKU") },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                 keyboardActions = KeyboardActions(onNext = { addInvoiceItem() }),
@@ -208,9 +217,8 @@ fun PointOfSaleScreen() {
                         } else false
                     })
 
-            // FIXME drop assert
-            val total = invoiceItems.sumOf { item ->
-                TempState.inventoryItems.find { it.upc == item.id }!!.sellingPrice * item.count }
+            val total = invoiceItems.values
+                .sumOf { item -> item.inventoryItem.sellingPrice * item.count }
             Text("Total excl tax: \$${total.asDecimal()}", fontSize = 24.sp,
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp))
         }
@@ -218,26 +226,26 @@ fun PointOfSaleScreen() {
         Column(Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Card(Modifier.weight(1f).fillMaxWidth()) { Column(Modifier.fillMaxSize().padding(12.dp)) {
                 Text("Customer Info", fontSize = 24.sp, modifier = Modifier.padding(bottom = 8.dp))
-                if (customerId != null) {
-                    val customer = TempState.customers.find { it.id == customerId }!!
-                    Text("Name: ${customer.name ?: "N/A"}")
-                    Text("Phone: ${customer.phone}")
-                    Text("Email: ${customer.email ?: "N/A"}")
-                    Text("Address: ${customer.address ?: "N/A"}")
-                    Text("Notes: ${customer.notes ?: "N/A"}")
+                val c = customer
+                if (c != null) {
+                    Text("Name: ${c.name ?: "N/A"}")
+                    Text("Phone: ${c.phone}")
+                    Text("Email: ${c.email ?: "N/A"}")
+                    Text("Address: ${c.address ?: "N/A"}")
+                    Text("Notes: ${c.notes ?: "N/A"}")
                     // FIXME: shipping address
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         Button(onClick = { openEditCustomerDialog = true }) {
                             Text("Edit Customer")
                         }
-                        OutlinedButton(onClick = { customerId = null }) {
+                        OutlinedButton(onClick = { customer = null }) {
                             Text("Clear")
                         }
                     }
                 } else {
                     Row(Modifier.fillMaxWidth(), Arrangement.spacedBy(12.dp)) {
                         OutlinedButton(onClick = { openExistingCustomerDialog = true }, Modifier.weight(1f)) {
-                            Text("Return Customer")
+                            Text("Exists Customer")
                         }
                         Button(onClick = { openNewCustomerDialog = true }, Modifier.weight(1f)) {
                             Text("New Customer")
@@ -273,10 +281,14 @@ fun PointOfSaleScreen() {
                     modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
 
                 Button(onClick = {
-                    // FIXME better validation
-                    if (customerId == null) {
+                    if (customer == null) {
                         coroutineScope.launch { snackbarHostState.showSnackbar(
                             message = "Please select a customer.",
+                            actionLabel = "Hide",
+                            duration = SnackbarDuration.Short) }
+                    } else if (invoiceItems.isEmpty()) {
+                        coroutineScope.launch { snackbarHostState.showSnackbar(
+                            message = "No items have been added to the invoice cart!",
                             actionLabel = "Hide",
                             duration = SnackbarDuration.Short) }
                     } else openProceedPaymentDialog = true
