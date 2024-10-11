@@ -25,6 +25,31 @@ export const getInventoryItemsHandler: RouteHandlerMethod = async (request, repl
   return inventoryItems
 }
 
+export const getInventoryItemQueryByIDHandler: RouteHandlerMethod = async (request, reply) => {
+  if (!verifyRequest(request)) {
+    reply.statusCode = 401
+    return { error: 'Invalid authorization token!' }
+  }
+  const { query } = request.params as Record<string, string>
+  if (typeof query !== 'string') {
+    reply.statusCode = 400
+    return { error: 'Invalid query!' }
+  }
+  const [inventoryItem]: [InventoryItem | undefined] =
+    await sql`SELECT * FROM inventory_items WHERE upc = ${query} OR sku = ${query} LIMIT 1;`
+  if (!inventoryItem) {
+    reply.statusCode = 404
+    return { error: 'Inventory item not found!' }
+  }
+  const validInventoryItem = validateInventoryItem(inventoryItem)
+  if (!validInventoryItem) {
+    reply.statusCode = 500
+    server.log.error('Invalid inventory item stored!', validInventoryItem)
+    return { error: 'Internal Server Error: Invalid inventory item stored!' }
+  }
+  return inventoryItem
+}
+
 export const postInventoryItemHandler: RouteHandlerMethod = async (request, reply) => {
   const user = verifyRequest(request)
   if (!user) {

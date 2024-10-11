@@ -44,6 +44,7 @@ await sql`CREATE TABLE IF NOT EXISTS inventory_items (
   selling_price BIGINT NOT NULL,
   quantity INT NOT NULL
 );`
+await sql`CREATE INDEX IF NOT EXISTS inventory_items_sku_idx ON inventory_items (sku);`
 
 // Settings table
 await sql`CREATE TABLE IF NOT EXISTS settings (

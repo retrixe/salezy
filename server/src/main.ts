@@ -9,6 +9,7 @@ import {
 } from './endpoints/customers.js'
 import {
   getInventoryItemsHandler,
+  getInventoryItemQueryByIDHandler,
   patchInventoryItemHandler,
   postInventoryItemHandler,
 } from './endpoints/inventoryItems.js'
@@ -28,6 +29,7 @@ server.post('/customer', postCustomerHandler)
 server.patch('/customer/:id', patchCustomerHandler)
 
 server.get('/inventoryItems', getInventoryItemsHandler)
+server.get('/inventoryItem/queryByID/:query', getInventoryItemQueryByIDHandler)
 server.post('/inventoryItem', postInventoryItemHandler)
 server.patch('/inventoryItem/:upc', patchInventoryItemHandler)
 
