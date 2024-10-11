@@ -31,6 +31,7 @@ import xyz.retrixe.salezy.ui.components.HeadTableCell
 import xyz.retrixe.salezy.ui.components.PlainTooltipBox
 import xyz.retrixe.salezy.ui.components.TableCell
 import xyz.retrixe.salezy.ui.dialogs.AddEditCustomerDialog
+import xyz.retrixe.salezy.ui.dialogs.SearchForCustomerDialog
 import xyz.retrixe.salezy.utils.asDecimal
 import java.time.Instant
 
@@ -97,32 +98,9 @@ fun PointOfSaleScreen() {
         onSubmit = { customer = it })
 
     var openExistingCustomerDialog by remember { mutableStateOf(false) }
-    // FIXME: this is bad.. implement search function lol
-    AnimatedVisibility(openExistingCustomerDialog) {
-        Dialog(onDismissRequest = { openExistingCustomerDialog = false }) {
-            Card(
-                modifier = Modifier.wrapContentSize().width(420.dp).padding(16.dp),
-                shape = RoundedCornerShape(16.dp),
-            ) {
-                Column(
-                    Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                ) {
-                    Text("Search for Customer", fontSize = 28.sp)
-                    LazyColumn {
-                        itemsIndexed(TempState.customers) { _, tempCustomer ->
-                            TextButton(onClick = {
-                                customer = tempCustomer
-                                openExistingCustomerDialog = false
-                            }) {
-                                Text("${tempCustomer.name ?: "N/A"} (${tempCustomer.phone})")
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+    SearchForCustomerDialog(openExistingCustomerDialog,
+        { openExistingCustomerDialog = false },
+        { customer = it })
 
     // FIXME demo dialog
     var openProceedPaymentDialog by remember { mutableStateOf(false) }
