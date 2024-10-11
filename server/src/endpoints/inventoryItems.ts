@@ -35,8 +35,9 @@ export const getInventoryItemQueryByIDHandler: RouteHandlerMethod = async (reque
     reply.statusCode = 400
     return { error: 'Invalid query!' }
   }
-  const [inventoryItem]: [InventoryItem | undefined] =
-    await sql`SELECT * FROM inventory_items WHERE upc = ${query} OR sku = ${query} LIMIT 1;`
+  const [inventoryItem]: [InventoryItem | undefined] = await sql`SELECT * FROM inventory_items ${
+    /^\d+$/.test(query) ? sql`WHERE upc = ${query} OR sku = ${query}` : sql`WHERE sku = ${query}`
+  } LIMIT 1;`
   if (!inventoryItem) {
     reply.statusCode = 404
     return { error: 'Inventory item not found!' }

@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.launch
+import xyz.retrixe.salezy.api.Api
 import xyz.retrixe.salezy.api.entities.Customer
 import xyz.retrixe.salezy.api.entities.InventoryItem
 import xyz.retrixe.salezy.api.entities.Invoice
@@ -49,29 +50,34 @@ fun PointOfSaleScreen() {
     var overrideTaxRateValue by remember { mutableStateOf("") }
 
     fun addInvoiceItem() {
-        if (addInvoiceItemField.isBlank()) return
-        val fieldAsUPC = addInvoiceItemField.toLongOrNull()
-        val existingInvoiceItem = fieldAsUPC?.let { invoiceItems[fieldAsUPC] }
-        if (existingInvoiceItem != null) {
-            invoiceItems[fieldAsUPC] =
-                existingInvoiceItem.copy(count = existingInvoiceItem.count + 1)
-            return
-        }
-
-        // FIXME link to API
-        val matchingInventoryItem =
-            if (fieldAsUPC != null) TempState.inventoryItems.find { it.upc == fieldAsUPC }
-            else TempState.inventoryItems.find { it.sku == addInvoiceItemField }
-        if (matchingInventoryItem != null) {
-            invoiceItems[matchingInventoryItem.upc] = TempInvoiceItem(matchingInventoryItem, 1)
-        } else {
-            coroutineScope.launch { snackbarHostState.showSnackbar(
-                message = "Item not found! Enter valid UPC or SKU.",
-                actionLabel = "Hide",
-                duration = SnackbarDuration.Short) }
-        }
-
+        val id = addInvoiceItemField
         addInvoiceItemField = ""
+        coroutineScope.launch { try {
+            if (id.isBlank()) return@launch
+            val fieldAsUPC = id.toLongOrNull()
+            val existingInvoiceItem = fieldAsUPC?.let { invoiceItems[fieldAsUPC] }
+            if (existingInvoiceItem != null) {
+                invoiceItems[fieldAsUPC] =
+                    existingInvoiceItem.copy(count = existingInvoiceItem.count + 1)
+                return@launch
+            }
+
+            val matchingInventoryItem = Api.queryInventoryItemById(id)
+            if (matchingInventoryItem != null) {
+                invoiceItems[matchingInventoryItem.upc] = TempInvoiceItem(matchingInventoryItem, 1)
+            } else {
+                snackbarHostState.showSnackbar(
+                    message = "Item not found! Enter valid UPC or SKU.",
+                    actionLabel = "Hide",
+                    duration = SnackbarDuration.Short)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            snackbarHostState.showSnackbar(
+                message = "An error has occurred!",
+                actionLabel = "Hide",
+                duration = SnackbarDuration.Short)
+        } }
     }
 
     var openNewCustomerDialog by remember { mutableStateOf(false) }

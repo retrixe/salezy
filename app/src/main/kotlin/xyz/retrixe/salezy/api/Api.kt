@@ -106,6 +106,19 @@ object Api {
         }
     }
 
+    suspend fun queryInventoryItemById(id: String): InventoryItem? {
+        val response = client.get("inventoryItem/queryByID") {
+            url.appendPathSegments(id)
+        }
+        return if (response.status == HttpStatusCode.NotFound) {
+            null
+        } else if (!response.status.isSuccess()) {
+            throw ApiException(response.body<ErrorResponseBody>().error)
+        } else {
+            response.body<InventoryItem>()
+        }
+    }
+
     suspend fun postInventoryItem(inventoryItem: EphemeralInventoryItem): InventoryItem {
         val response = client.post("inventoryItem") {
             setBody(inventoryItem)
