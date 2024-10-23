@@ -36,7 +36,7 @@ export const postSettingsHandler: RouteHandlerMethod = async (request, reply) =>
     return { error: 'Invalid request body!' }
   }
 
-  const body = request.body
+  const { body } = request
   await sql.begin(async sql => {
     const settings = await sql<SettingRow[]>`SELECT key, value FROM settings;`
     const oldSettings = Object.fromEntries(settings.map(s => [s.key, JSON.parse(s.value)]))

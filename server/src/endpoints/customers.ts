@@ -35,7 +35,7 @@ export const postCustomerHandler: RouteHandlerMethod = async (request, reply) =>
     return { error: 'Invalid request body!' }
   }
 
-  const body = request.body
+  const { body } = request
   return await sql.begin(async sql => {
     const [{ id }] = await sql<[{ id: number }]>`INSERT INTO customers ${sql(body)} RETURNING id;`
 
@@ -59,7 +59,7 @@ export const patchCustomerHandler: RouteHandlerMethod = async (request, reply) =
     return { error: 'Invalid request body!' }
   }
 
-  const body = request.body
+  const { body } = request
   return await sql.begin(async sql => {
     const [oldCustomer] = await sql<Customer[]>`SELECT * FROM customers WHERE id = ${id};`
     if (!oldCustomer) {

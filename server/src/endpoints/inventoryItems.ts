@@ -8,7 +8,7 @@ import {
   validateEphemeralInventoryItem,
 } from '../database/entities/inventoryItem.js'
 import { hash } from 'crypto'
-import { type PostgresError } from 'postgres'
+import type { PostgresError } from 'postgres'
 
 export const getInventoryItemsHandler: RouteHandlerMethod = async (request, reply) => {
   if (!verifyRequest(request)) {
@@ -63,7 +63,7 @@ export const postInventoryItemHandler: RouteHandlerMethod = async (request, repl
     return { error: 'Invalid request body!' }
   }
 
-  const body = request.body
+  const { body } = request
   try {
     return await sql.begin(async sql => {
       const { image, ...rest } = body
@@ -85,7 +85,7 @@ export const postInventoryItemHandler: RouteHandlerMethod = async (request, repl
     if ((e as PostgresError).code === '23505' /* UNIQUE VIOLATION */) {
       reply.statusCode = 409
       return { error: 'Inventory item with this UPC already exists!' }
-    } else throw e
+    } else throw e as Error
   }
 }
 
@@ -102,7 +102,7 @@ export const patchInventoryItemHandler: RouteHandlerMethod = async (request, rep
     return { error: 'Invalid request body!' }
   }
 
-  const body = request.body
+  const { body } = request
   return await sql.begin(async sql => {
     const [oldItem]: InventoryItem[] = await sql`SELECT * FROM inventory_items WHERE upc = ${upc};`
     if (!oldItem) {
