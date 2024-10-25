@@ -8,6 +8,7 @@ import kotlinx.serialization.Serializable
     val beforeTaxCost: Long,
     val afterTaxCost: Long,
     val taxRate: Int,
+    // discountValue, giftCardId, giftCardValue
     val issuedOn: Long,
     val items: List<InvoicedItem>,
     val notes: String?,

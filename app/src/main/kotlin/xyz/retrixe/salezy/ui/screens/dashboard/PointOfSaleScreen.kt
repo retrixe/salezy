@@ -4,9 +4,11 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -47,6 +49,7 @@ fun PointOfSaleScreen() {
     val invoiceItems = remember { mutableStateMapOf<Long, TempInvoiceItem>() }
     var addInvoiceItemField by remember { mutableStateOf("") }
     var customer by remember { mutableStateOf<Customer?>(null) }
+    var shippingAddress by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
     var overrideTaxRateValue by remember { mutableStateOf("") }
 
@@ -208,35 +211,44 @@ fun PointOfSaleScreen() {
         }
 
         Column(Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Card(Modifier.weight(1f).fillMaxWidth()) { Column(Modifier.fillMaxSize().padding(12.dp)) {
-                Text("Customer Info", fontSize = 24.sp, modifier = Modifier.padding(bottom = 8.dp))
-                val c = customer
-                if (c != null) {
-                    Text("Name: ${c.name ?: "N/A"}")
-                    Text("Phone: ${c.phone}")
-                    Text("Email: ${c.email ?: "N/A"}")
-                    Text("Address: ${c.address ?: "N/A"}")
-                    Text("Notes: ${c.notes ?: "N/A"}")
-                    // FIXME: shipping address
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Button(onClick = { openEditCustomerDialog = true }) {
-                            Text("Edit Customer")
+            Card(Modifier.weight(1f).fillMaxWidth()) {
+                Column(Modifier.fillMaxSize().padding(12.dp).verticalScroll(rememberScrollState())) {
+                    Text("Customer Info", fontSize = 24.sp, modifier = Modifier.padding(bottom = 8.dp))
+                    val c = customer
+                    if (c != null) {
+                        Text("Name: ${c.name ?: "N/A"}")
+                        Text("Phone: ${c.phone}")
+                        Text("Email: ${c.email ?: "N/A"}")
+                        Text("Address: ${c.address ?: "N/A"}")
+                        Text("Notes: ${c.notes ?: "N/A"}")
+                        Row(Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Button(onClick = { openEditCustomerDialog = true }) {
+                                Text("Edit Customer")
+                            }
+                            OutlinedButton(onClick = { customer = null }) {
+                                Text("Clear")
+                            }
                         }
-                        OutlinedButton(onClick = { customer = null }) {
-                            Text("Clear")
-                        }
-                    }
-                } else {
-                    Row(Modifier.fillMaxWidth(), Arrangement.spacedBy(12.dp)) {
-                        OutlinedButton(onClick = { openExistingCustomerDialog = true }, Modifier.weight(1f)) {
-                            Text("Exists Customer")
-                        }
-                        Button(onClick = { openNewCustomerDialog = true }, Modifier.weight(1f)) {
-                            Text("New Customer")
+
+                        OutlinedTextField(value = shippingAddress,
+                            onValueChange = { shippingAddress = it },
+                            label = { Text("Custom shipping address (Override customer address)") },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
+                    } else {
+                        Row(Modifier.fillMaxWidth(), Arrangement.spacedBy(12.dp)) {
+                            OutlinedButton(onClick = { openExistingCustomerDialog = true }, Modifier.weight(1f)) {
+                                Text("Exists Customer")
+                            }
+                            Button(onClick = { openNewCustomerDialog = true }, Modifier.weight(1f)) {
+                                Text("New Customer")
+                            }
                         }
                     }
                 }
-            } }
+            }
             Card(Modifier.weight(1f).fillMaxWidth()) { Column(
                 Modifier.fillMaxSize().padding(12.dp),
                 horizontalAlignment = Alignment.End) {
