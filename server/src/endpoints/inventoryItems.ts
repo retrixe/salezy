@@ -103,31 +103,35 @@ export const patchInventoryItemHandler: RouteHandlerMethod = async (request, rep
   }
 
   const { body } = request
-  return await sql.begin(async sql => {
+  const [newItem, oldImageId] = await sql.begin(async sql => {
     const [oldItem]: InventoryItem[] = await sql`SELECT * FROM inventory_items WHERE upc = ${upc};`
     if (!oldItem) {
       reply.statusCode = 404
-      return { error: 'Inventory item not found!' }
+      return [{ error: 'Inventory item not found!' }]
     }
-    const { image, upc: _, ...rest } = body // Prohibit UPC from being modified
-    const newItem = rest as InventoryItem
+    const { image, upc: _, ...newItemData } = body // Prohibit UPC from being modified
     if (image) {
       const data = Buffer.from(image, 'base64')
       const sha256sum = hash('sha256', data, 'hex')
       await sql`INSERT INTO assets (hash, data) VALUES (${sha256sum}, ${data}) ON CONFLICT DO NOTHING;`
-      newItem.imageId = sha256sum
+      newItemData.imageId = sha256sum
     }
-    await sql`UPDATE inventory_items SET ${sql(newItem)} WHERE upc = ${upc};`
-
-    if (newItem.imageId !== oldItem.imageId && oldItem.imageId) {
-      await sql`DELETE FROM assets WHERE hash = ${oldItem.imageId} AND NOT EXISTS (
-        SELECT 1 FROM inventory_items WHERE image_id = ${oldItem.imageId}
-      );`
-    }
+    await sql`UPDATE inventory_items SET ${sql(newItemData)} WHERE upc = ${upc};`
+    const oldImageId = newItemData.imageId !== oldItem.imageId && oldItem.imageId
 
     await sql`INSERT INTO audit_log (actor, action, entity, entity_id, prev_value, new_value) VALUES (
-      ${user.username}, 2, 'inventory_item', ${upc}, ${oldItem as any}, ${newItem as any}::jsonb
+      ${user.username}, 2, 'inventory_item', ${upc}, ${oldItem as any}, ${newItemData as any}::jsonb
     );`
-    return newItem
+    return [{ upc, ...newItemData }, oldImageId]
   })
+
+  if (oldImageId && typeof oldImageId === 'string') {
+    try {
+      await sql`DELETE FROM assets WHERE hash = ${oldImageId};`
+    } catch (e) {
+      /* Do nothing */
+    }
+  }
+
+  return newItem
 }

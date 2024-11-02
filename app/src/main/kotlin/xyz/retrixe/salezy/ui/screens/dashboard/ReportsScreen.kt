@@ -44,14 +44,14 @@ fun ReportsScreen() {
                     Text("Net Revenue (excl tax)", fontSize = 24.sp)
                     Text(
                         "$${TempState.invoices
-                            .fold(0L) { acc, invoice -> acc + invoice.beforeTaxCost }.asDecimal()}",
+                            .fold(0L) { acc, invoice -> acc + invoice.costPreTax }.asDecimal()}",
                         fontSize = 40.sp)
                 } } }
                 item { Card { Column(Modifier.padding(16.dp)) {
                     Text("Total Items Sold", fontSize = 24.sp)
                     Text(TempState.invoices
                         .fold(0L) { acc, invoice -> acc + invoice.items
-                            .fold(0) { acc2, item -> acc2 + item.count } }.toString(),
+                            .fold(0) { acc2, item -> acc2 + item.quantity } }.toString(),
                         fontSize = 40.sp)
                 } } }
                 item { Card { Column(Modifier.padding(16.dp)) {
