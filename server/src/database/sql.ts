@@ -58,6 +58,7 @@ await sql`CREATE INDEX IF NOT EXISTS inventory_items_sku_idx ON inventory_items 
 await sql`CREATE TABLE IF NOT EXISTS invoices (
   id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   customer_id INT NOT NULL REFERENCES customers (id) ON DELETE RESTRICT,
+  shipping_address TEXT NOT NULL,
   cost_pre_tax BIGINT NOT NULL,
   cost_post_tax BIGINT NOT NULL,
   tax_rate INT NOT NULL,

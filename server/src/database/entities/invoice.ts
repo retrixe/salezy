@@ -3,6 +3,7 @@ import { ajv } from '../../utils.js'
 export interface Invoice {
   id: number
   customerId: number
+  shippingAddress: string
   costPreTax: string
   costPostTax: string
   taxRate: number
@@ -31,6 +32,7 @@ export const validateInvoice = ajv.compile<Invoice>({
   properties: {
     id: { type: 'integer' },
     customerId: { type: 'integer' },
+    shippingAddress: { type: 'string' },
     costPreTax: { type: 'string', pattern: '^\\d+$' },
     costPostTax: { type: 'string', pattern: '^\\d+$' },
     taxRate: { type: 'number' },
@@ -59,6 +61,7 @@ export const validateInvoice = ajv.compile<Invoice>({
   required: [
     'id',
     'customerId',
+    'shippingAddress',
     'costPreTax',
     'costPostTax',
     'taxRate',

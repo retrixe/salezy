@@ -35,6 +35,7 @@ import xyz.retrixe.salezy.ui.components.TableCell
 import xyz.retrixe.salezy.ui.dialogs.AddEditCustomerDialog
 import xyz.retrixe.salezy.ui.dialogs.SearchForCustomerDialog
 import xyz.retrixe.salezy.utils.asDecimal
+import xyz.retrixe.salezy.utils.toDecimalLong
 import java.time.Instant
 
 data class TempInvoiceItem(val inventoryItem: InventoryItem, val quantity: Int) {
@@ -127,7 +128,10 @@ fun PointOfSaleScreen() {
                     Text("Payment", fontSize = 28.sp)
                     val total = invoiceItems.values
                         .sumOf { item -> item.inventoryItem.sellingPrice * item.quantity }
-                    val tax = (total * overrideTaxRateValue.toInt()) / 100
+                    val taxRate =
+                        if (overrideTaxRateValue.isEmpty()) RemoteSettingsState.current.taxRate
+                        else overrideTaxRateValue.toDecimalLong()
+                    val tax = (total * taxRate.toInt()) / 100
                     val totalWithTax = total + tax
                     Text("Total incl. tax: \$${totalWithTax.asDecimal()}")
                     Button(onClick = {
@@ -138,7 +142,7 @@ fun PointOfSaleScreen() {
                             customerId = customer!!.id,
                             items = invoiceItems.map { it.value.asInvoicedItem() },
                             notes = notes.ifBlank { null },
-                            taxRate = overrideTaxRateValue.toInt(),
+                            taxRate = taxRate.toInt(),
                             costPreTax = total,
                             costPostTax = totalWithTax,
                             issuedOn = Instant.now().toEpochMilli(),
