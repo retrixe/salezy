@@ -5,6 +5,14 @@ import { postgresConf } from '../config.js'
 const sql = postgres({
   ...postgresConf,
   transform: postgres.camel,
+  types: {
+    date: {
+      to: 1184,
+      from: [1082, 1114, 1184],
+      serialize: (x: any) => (x instanceof Date ? x : new Date(x)).toISOString(),
+      parse: (x: string) => new Date(x).getTime(),
+    },
+  },
 })
 
 // https://stackoverflow.com/questions/4107915/postgresql-default-constraint-names/4108266#4108266
@@ -45,6 +53,41 @@ await sql`CREATE TABLE IF NOT EXISTS inventory_items (
   quantity INT NOT NULL
 );`
 await sql`CREATE INDEX IF NOT EXISTS inventory_items_sku_idx ON inventory_items (sku);`
+
+// Invoices
+await sql`CREATE TABLE IF NOT EXISTS invoices (
+  id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  customer_id INT NOT NULL REFERENCES customers (id) ON DELETE RESTRICT,
+  cost_pre_tax BIGINT NOT NULL,
+  cost_post_tax BIGINT NOT NULL,
+  tax_rate INT NOT NULL,
+  issued_on TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  payment_method INT NOT NULL,
+  gift_card_code VARCHAR(24) NULL,
+  gift_card_amount BIGINT NULL,
+  notes TEXT NULL
+);`
+
+await sql`CREATE TABLE IF NOT EXISTS invoice_items (
+  invoice_id INT NOT NULL REFERENCES invoices (id) ON DELETE CASCADE,
+  upc BIGINT NOT NULL REFERENCES inventory_items (upc) ON DELETE RESTRICT,
+  quantity INT NOT NULL,
+  name VARCHAR(320) NOT NULL,
+  sku VARCHAR(64) NOT NULL,
+  cost_price BIGINT NOT NULL,
+  selling_price BIGINT NOT NULL,
+  PRIMARY KEY (invoice_id, upc)
+);`
+
+// Gift cards
+/* await sql`CREATE TABLE IF NOT EXISTS gift_cards (
+  code VARCHAR(24) PRIMARY KEY NOT NULL,
+  issued_balance BIGINT NOT NULL,
+  current_balance BIGINT NOT NULL,
+  issued_on TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  expires_on TIMESTAMPTZ NOT NULL,
+  invalid BOOLEAN NOT NULL
+);` */
 
 // Settings table
 await sql`CREATE TABLE IF NOT EXISTS settings (
