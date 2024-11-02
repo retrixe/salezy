@@ -5,15 +5,15 @@ import java.time.Instant
 
 object TempState {
     val giftCards = listOf(
-        GiftCard("EUI2FVEU", 10, 10, 0, 0),
-        GiftCard("UIFBH2HD", 20, 20, 0, 0),
-        GiftCard("BEFW9HSS", 30, 30, 0, 0),
-        GiftCard("BRIRI329", 40, 40, 0, 0),
-        GiftCard("CSDR2831", 50, 50, 0, 0),
-        GiftCard("RJEJ2113", 60, 60, 0, 0),
-        GiftCard("EOIWOI9R", 70, 70, 0, 0),
-        GiftCard("GHR23829", 80, 80, 0, 0),
-        GiftCard("FUIRWHIH", 90, 90, 0, 0),
+        GiftCard("EUI2FVEU", 10, 10, 0, 0, true),
+        GiftCard("UIFBH2HD", 20, 20, 0, 0, false),
+        GiftCard("BEFW9HSS", 30, 30, 0, 0, false),
+        GiftCard("BRIRI329", 40, 40, 0, 0, false),
+        GiftCard("CSDR2831", 50, 50, 0, 0, false),
+        GiftCard("RJEJ2113", 60, 60, 0, 0, false),
+        GiftCard("EOIWOI9R", 70, 70, 0, 0, false),
+        GiftCard("GHR23829", 80, 80, 0, 0, false),
+        GiftCard("FUIRWHIH", 90, 90, 0, 0, false),
     )
 
     val inventoryItems = mutableListOf(
@@ -42,7 +42,10 @@ object TempState {
             4400,
             10,
             Instant.now().toEpochMilli(),
-            listOf(InvoicedItem(1, 2)),
+            listOf(InvoicedItem(1, 2, "lol", "lmao", 3000, 4000)),
+            1,
+            null,
+            null,
             null)
     )
 }

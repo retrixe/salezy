@@ -76,8 +76,8 @@ fun TxnHistoryScreen() {
                                 TableCell(text = invoice.id.toString(), weight = .2f)
                                 TableCell(text = invoice.customerId.toString(), weight = .2f)
                                 TableCell(text = invoice.issuedOn.toInstant().formatted(), weight = .2f)
-                                TableCell(text = "\$${invoice.beforeTaxCost.asDecimal()}", weight = .15f)
-                                TableCell(text = "\$${invoice.afterTaxCost.asDecimal()}", weight = .15f)
+                                TableCell(text = "\$${invoice.costPreTax.asDecimal()}", weight = .15f)
+                                TableCell(text = "\$${invoice.costPostTax.asDecimal()}", weight = .15f)
                                 TableCell(text = invoice.items.size.toString(), weight = .1f)
                                 // FIXME show details
                                 Row(Modifier.widthIn(80.dp)) {

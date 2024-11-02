@@ -37,8 +37,15 @@ import xyz.retrixe.salezy.ui.dialogs.SearchForCustomerDialog
 import xyz.retrixe.salezy.utils.asDecimal
 import java.time.Instant
 
-data class TempInvoiceItem(val inventoryItem: InventoryItem, val count: Int) {
-    fun asInvoicedItem() = InvoicedItem(inventoryItem.upc, count)
+data class TempInvoiceItem(val inventoryItem: InventoryItem, val quantity: Int) {
+    fun asInvoicedItem() = InvoicedItem(
+        inventoryItem.upc,
+        quantity,
+        inventoryItem.name,
+        inventoryItem.sku,
+        inventoryItem.costPrice,
+        inventoryItem.sellingPrice
+    )
 }
 
 @Composable
@@ -62,7 +69,7 @@ fun PointOfSaleScreen() {
             val existingInvoiceItem = fieldAsUPC?.let { invoiceItems[fieldAsUPC] }
             if (existingInvoiceItem != null) {
                 invoiceItems[fieldAsUPC] =
-                    existingInvoiceItem.copy(count = existingInvoiceItem.count + 1)
+                    existingInvoiceItem.copy(quantity = existingInvoiceItem.quantity + 1)
                 return@launch
             }
 
@@ -119,7 +126,7 @@ fun PointOfSaleScreen() {
                 ) {
                     Text("Payment", fontSize = 28.sp)
                     val total = invoiceItems.values
-                        .sumOf { item -> item.inventoryItem.sellingPrice * item.count }
+                        .sumOf { item -> item.inventoryItem.sellingPrice * item.quantity }
                     val tax = (total * overrideTaxRateValue.toInt()) / 100
                     val totalWithTax = total + tax
                     Text("Total incl. tax: \$${totalWithTax.asDecimal()}")
@@ -132,9 +139,12 @@ fun PointOfSaleScreen() {
                             items = invoiceItems.map { it.value.asInvoicedItem() },
                             notes = notes.ifBlank { null },
                             taxRate = overrideTaxRateValue.toInt(),
-                            beforeTaxCost = total,
-                            afterTaxCost = totalWithTax,
-                            issuedOn = Instant.now().toEpochMilli()
+                            costPreTax = total,
+                            costPostTax = totalWithTax,
+                            issuedOn = Instant.now().toEpochMilli(),
+                            paymentMethod = 1,
+                            giftCardCode = null,
+                            giftCardAmount = null
                         ))
                     }) {
                         Text("Pay")
@@ -162,14 +172,14 @@ fun PointOfSaleScreen() {
                     Row(Modifier.fillMaxWidth()) {
                         Row(Modifier.widthIn(min = 144.dp)) {
                             PlainTooltipBox("Add") {
-                                IconButton(onClick = { invoiceItems[itemId] = item.copy(count = item.count + 1) }) {
+                                IconButton(onClick = { invoiceItems[itemId] = item.copy(quantity = item.quantity + 1) }) {
                                     Icon(imageVector = Icons.Filled.Add, contentDescription = "Add")
                                 }
                             }
                             PlainTooltipBox("Remove") {
                                 IconButton(onClick = {
-                                    if (item.count == 1) invoiceItems.remove(itemId)
-                                    else invoiceItems[itemId] = item.copy(count = item.count - 1)
+                                    if (item.quantity == 1) invoiceItems.remove(itemId)
+                                    else invoiceItems[itemId] = item.copy(quantity = item.quantity - 1)
                                 }) {
                                     Icon(imageVector = Icons.Filled.Remove, contentDescription = "Remove")
                                 }
@@ -185,7 +195,7 @@ fun PointOfSaleScreen() {
                         TableCell(text = inventoryItem.upc.toString(), weight = .25f)
                         TableCell(text = inventoryItem.sku, weight = .25f)
                         TableCell(text = "$${inventoryItem.sellingPrice.asDecimal()}", weight = .15f)
-                        TableCell(text = item.count.toString(), weight = .1f)
+                        TableCell(text = item.quantity.toString(), weight = .1f)
                     }
                 }
             }
@@ -205,7 +215,7 @@ fun PointOfSaleScreen() {
                     })
 
             val total = invoiceItems.values
-                .sumOf { item -> item.inventoryItem.sellingPrice * item.count }
+                .sumOf { item -> item.inventoryItem.sellingPrice * item.quantity }
             Text("Total excl tax: \$${total.asDecimal()}", fontSize = 24.sp,
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp))
         }

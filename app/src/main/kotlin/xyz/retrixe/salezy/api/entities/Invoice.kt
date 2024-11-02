@@ -5,11 +5,13 @@ import kotlinx.serialization.Serializable
 @Serializable data class Invoice(
     val id: Int,
     val customerId: Int,
-    val beforeTaxCost: Long,
-    val afterTaxCost: Long,
+    val costPreTax: Long,
+    val costPostTax: Long,
     val taxRate: Int,
-    // discountValue, giftCardId, giftCardValue
     val issuedOn: Long,
     val items: List<InvoicedItem>,
+    val paymentMethod: Int,
+    val giftCardCode: String?,
+    val giftCardAmount: Long?,
     val notes: String?,
 )

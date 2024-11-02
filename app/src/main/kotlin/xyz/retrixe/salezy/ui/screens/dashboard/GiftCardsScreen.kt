@@ -5,7 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -80,9 +80,9 @@ fun GiftCardsScreen() {
                             Row(Modifier.fillMaxWidth()) {
                                 Row(Modifier.widthIn(min = 96.dp)) {
                                     // FIXME do something
-                                    PlainTooltipBox("Edit") {
-                                        IconButton(onClick = { println("Edit") }) {
-                                            Icon(imageVector = Icons.Filled.Edit, contentDescription = "Edit")
+                                    PlainTooltipBox("Expire") {
+                                        IconButton(onClick = { println("Expire") }) {
+                                            Icon(imageVector = Icons.Filled.Block, contentDescription = "Expire")
                                         }
                                     }
                                     PlainTooltipBox("History") {
