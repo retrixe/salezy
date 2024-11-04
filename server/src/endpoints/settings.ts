@@ -3,6 +3,7 @@ import sql from '../database/sql.js'
 import { ajv, verifyRequest } from '../utils.js'
 import { server } from '../main.js'
 import { validateSettings, type SettingRow, type Settings } from '../database/entities/settings.js'
+import { AuditLogAction, insertAuditLog } from '../database/entities/auditLog.js'
 
 export const getSettingsHandler: RouteHandlerMethod = async (request, reply) => {
   if (!verifyRequest(request)) {
@@ -45,10 +46,14 @@ export const postSettingsHandler: RouteHandlerMethod = async (request, reply) =>
     for (const [key, value] of Object.entries(body)) {
       await sql`UPDATE settings SET value = ${value}::jsonb WHERE key = ${key};`
     }
-
-    await sql`INSERT INTO audit_log (actor, action, entity, entity_id, prev_value, new_value) VALUES (
-      ${user.username}, 2, 'settings', -1, ${oldSettings as any}::jsonb, ${newSettings as any}::jsonb
-    );`
+    await insertAuditLog(
+      user.username,
+      AuditLogAction.UPDATE,
+      'settings',
+      -1,
+      oldSettings,
+      newSettings,
+    )
   })
 
   return { success: true }

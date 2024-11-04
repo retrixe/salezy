@@ -3,6 +3,7 @@ import sql from '../database/sql.js'
 import { ajv, verifyRequest } from '../utils.js'
 import { type User, validateUser } from '../database/entities/user.js'
 import { hash } from 'argon2'
+import { AuditLogAction, insertAuditLog } from '../database/entities/auditLog.js'
 
 export const getAccountsHandler: RouteHandlerMethod = async (request, reply) => {
   if (!verifyRequest(request)) {
@@ -32,9 +33,7 @@ export const postAccountHandler: RouteHandlerMethod = async (request, reply) => 
     }
 
     await sql`INSERT INTO users ${sql(body)};`
-    await sql`INSERT INTO audit_log (actor, action, entity, entity_id, prev_value, new_value) VALUES (
-      ${user.username}, 0, 'user', ${body.username}, NULL, ${body as any}::jsonb
-    );`
+    await insertAuditLog(user.username, AuditLogAction.CREATE, 'user', body.username, null, body)
   })
 }
 
@@ -67,9 +66,7 @@ export const patchAccountHandler: RouteHandlerMethod = async (request, reply) =>
     }
     await sql`UPDATE users SET ${sql(body)} WHERE username = ${username};`
     const newUser = { ...oldUser, ...body }
-    await sql`INSERT INTO audit_log (actor, action, entity, entity_id, prev_value, new_value) VALUES (
-      ${user.username}, 2, 'user', ${username}, ${oldUser as any}, ${newUser as any}::jsonb
-    );`
+    await insertAuditLog(user.username, AuditLogAction.UPDATE, 'user', username, oldUser, newUser)
   })
 }
 
@@ -95,8 +92,6 @@ export const deleteAccountHandler: RouteHandlerMethod = async (request, reply) =
       return { error: 'User not found!' }
     }
     await sql`DELETE FROM users WHERE username = ${username};`
-    await sql`INSERT INTO audit_log (actor, action, entity, entity_id, prev_value, new_value) VALUES (
-      ${user.username}, 1, 'user', ${username}, ${oldUser as any}, NULL
-    );`
+    await insertAuditLog(user.username, AuditLogAction.DELETE, 'user', username, oldUser, null)
   })
 }

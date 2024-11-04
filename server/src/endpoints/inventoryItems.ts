@@ -9,6 +9,7 @@ import {
 } from '../database/entities/inventoryItem.js'
 import { hash } from 'crypto'
 import type { PostgresError } from 'postgres'
+import { AuditLogAction, insertAuditLog } from '../database/entities/auditLog.js'
 
 export const getInventoryItemsHandler: RouteHandlerMethod = async (request, reply) => {
   if (!verifyRequest(request)) {
@@ -75,10 +76,14 @@ export const postInventoryItemHandler: RouteHandlerMethod = async (request, repl
         item.imageId = sha256sum
       }
       await sql`INSERT INTO inventory_items ${sql(item)};`
-
-      await sql`INSERT INTO audit_log (actor, action, entity, entity_id, prev_value, new_value) VALUES (
-        ${user.username}, 0, 'inventory_item', ${item.upc}, NULL, ${item as any}::jsonb
-      );`
+      await insertAuditLog(
+        user.username,
+        AuditLogAction.CREATE,
+        'inventory_item',
+        item.upc,
+        null,
+        item,
+      )
       return item
     })
   } catch (e) {
@@ -118,10 +123,14 @@ export const patchInventoryItemHandler: RouteHandlerMethod = async (request, rep
     }
     await sql`UPDATE inventory_items SET ${sql(newItemData)} WHERE upc = ${upc};`
     const oldImageId = newItemData.imageId !== oldItem.imageId && oldItem.imageId
-
-    await sql`INSERT INTO audit_log (actor, action, entity, entity_id, prev_value, new_value) VALUES (
-      ${user.username}, 2, 'inventory_item', ${upc}, ${oldItem as any}, ${newItemData as any}::jsonb
-    );`
+    await insertAuditLog(
+      user.username,
+      AuditLogAction.UPDATE,
+      'inventory_item',
+      upc,
+      oldItem,
+      newItemData,
+    )
     return [{ upc, ...newItemData }, oldImageId]
   })
 

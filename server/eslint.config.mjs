@@ -23,6 +23,7 @@ export default [
       '@typescript-eslint/no-unnecessary-condition': 'off',
       '@typescript-eslint/no-unsafe-argument': 'off',
       '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/max-params': 'off',
     },
   },
   eslintPluginPrettierRecommended,

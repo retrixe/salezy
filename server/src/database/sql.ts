@@ -106,7 +106,7 @@ await sql`CREATE TABLE IF NOT EXISTS audit_log (
   entity VARCHAR(64) NOT NULL,
   entity_id VARCHAR(64) NOT NULL,
   prev_value JSONB NULL,
-  new_value JSONB NOT NULL,
+  new_value JSONB NULL,
   timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );`
 

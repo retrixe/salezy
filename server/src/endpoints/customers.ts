@@ -7,6 +7,7 @@ import {
   validateCustomer,
   validateEphemeralCustomer,
 } from '../database/entities/customer.js'
+import { AuditLogAction, insertAuditLog } from '../database/entities/auditLog.js'
 
 export const getCustomersHandler: RouteHandlerMethod = async (request, reply) => {
   if (!verifyRequest(request)) {
@@ -38,11 +39,9 @@ export const postCustomerHandler: RouteHandlerMethod = async (request, reply) =>
   const { body } = request
   return await sql.begin(async sql => {
     const [{ id }] = await sql<[{ id: number }]>`INSERT INTO customers ${sql(body)} RETURNING id;`
-
-    await sql`INSERT INTO audit_log (actor, action, entity, entity_id, prev_value, new_value) VALUES (
-      ${user.username}, 0, 'customer', ${id}, NULL, ${{ ...body, id } as any}::jsonb
-    );`
-    return { ...body, id }
+    const customer = { ...body, id }
+    await insertAuditLog(user.username, AuditLogAction.CREATE, 'customer', id, null, customer)
+    return customer
   })
 }
 
@@ -61,17 +60,14 @@ export const patchCustomerHandler: RouteHandlerMethod = async (request, reply) =
 
   const { body } = request
   return await sql.begin(async sql => {
-    const [oldCustomer] = await sql<Customer[]>`SELECT * FROM customers WHERE id = ${id};`
-    if (!oldCustomer) {
+    const [oldCust] = await sql<Customer[]>`SELECT * FROM customers WHERE id = ${id};`
+    if (!oldCust) {
       reply.statusCode = 404
       return { error: 'Customer not found!' }
     }
-    const [newCustomer]: [Customer] =
+    const [newCust]: [Customer] =
       await sql`UPDATE customers SET ${sql(body)} WHERE id = ${id} RETURNING *;`
-
-    await sql`INSERT INTO audit_log (actor, action, entity, entity_id, prev_value, new_value) VALUES (
-      ${user.username}, 2, 'customer', ${id}, ${oldCustomer as any}, ${newCustomer as any}::jsonb
-    );`
-    return newCustomer
+    await insertAuditLog(user.username, AuditLogAction.UPDATE, 'customer', id, oldCust, newCust)
+    return newCust
   })
 }
