@@ -74,7 +74,10 @@ object Api {
         }
     }
 
-    @Serializable data class PatchAccountRequestBody(val username: String?, val password: String?)
+    @Serializable data class PatchAccountRequestBody(
+        val username: String = "",
+        val password: String = "",
+    )
     suspend fun patchAccount(username: String, data: PatchAccountRequestBody) {
         val response = client.patch("account") {
             url.appendPathSegments(username)
@@ -85,9 +88,20 @@ object Api {
         }
     }
 
+    @Serializable data class PostAccountRequestBody(val username: String, val password: String)
+    suspend fun postAccount(data: PostAccountRequestBody) {
+        val response = client.post("account") {
+            setBody(data)
+        }
+        if (!response.status.isSuccess()) {
+            throw ApiException(response.body<ErrorResponseBody>().error)
+        }
+    }
+
     suspend fun deleteAccount(username: String) {
         val response = client.delete("account") {
             url.appendPathSegments(username)
+            setBody("{}")
         }
         if (!response.status.isSuccess()) {
             throw ApiException(response.body<ErrorResponseBody>().error)

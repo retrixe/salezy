@@ -25,11 +25,13 @@ import xyz.retrixe.salezy.ui.components.PasswordTextField
 import xyz.retrixe.salezy.ui.components.PlainTooltipBox
 import xyz.retrixe.salezy.ui.components.TableCell
 
+// TODO: Split out the dialogs into their own files
 @Composable
 fun AccountsTab() {
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = LocalSnackbarHostState.current
     val accounts = remember { mutableStateListOf<String>() }
+    var createAccount by remember { mutableStateOf<Pair<String, String>?>(null) }
     var changePassword by remember { mutableStateOf<Pair<String, String>?>(null) }
     var renameAccount by remember { mutableStateOf<Pair<String, String>?>(null) }
     var deleteAccount by remember { mutableStateOf<String?>(null) }
@@ -48,10 +50,30 @@ fun AccountsTab() {
 
     if (accounts.isEmpty()) return LinearProgressIndicator(Modifier.fillMaxWidth())
 
+    fun onCreateAccount() = coroutineScope.launch {
+        val data = createAccount ?: return@launch
+        createAccount = null
+        try {
+            Api.postAccount(Api.PostAccountRequestBody(data.first, data.second))
+            accounts.add(data.first)
+            snackbarHostState.showSnackbar(
+                message = "Successfully created account \"${data.first}\"!",
+                actionLabel = "Hide",
+                duration = SnackbarDuration.Long)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            snackbarHostState.showSnackbar(
+                message = "Failed to create account \"${data.first}\"! ${e.message}",
+                actionLabel = "Hide",
+                duration = SnackbarDuration.Indefinite)
+        }
+    }
+
     fun onChangePassword() = coroutineScope.launch {
         val data = changePassword ?: return@launch
+        changePassword = null
         try {
-            Api.patchAccount(data.first, Api.PatchAccountRequestBody(null, data.second))
+            Api.patchAccount(data.first, Api.PatchAccountRequestBody(password = data.second))
             snackbarHostState.showSnackbar(
                 message = "Successfully changed password of \"${data.first}\"!",
                 actionLabel = "Hide",
@@ -67,8 +89,10 @@ fun AccountsTab() {
 
     fun onRenameAccount() = coroutineScope.launch {
         val data = renameAccount ?: return@launch
+        renameAccount = null
         try {
-            Api.patchAccount(data.first, Api.PatchAccountRequestBody(data.second, null))
+            Api.patchAccount(data.first, Api.PatchAccountRequestBody(username = data.second))
+            accounts[accounts.indexOf(data.first)] = data.second
             snackbarHostState.showSnackbar(
                 "Successfully renamed account from \"${data.first}\" to \"${data.second}\"!",
                 actionLabel = "Hide",
@@ -83,19 +107,69 @@ fun AccountsTab() {
     }
 
     fun onDeleteAccount() = coroutineScope.launch {
-        val data = changePassword ?: return@launch
+        val data = deleteAccount ?: return@launch
+        deleteAccount = null
         try {
-            Api.deleteAccount(data.first)
+            Api.deleteAccount(data)
+            accounts.remove(data)
             snackbarHostState.showSnackbar(
-                message = "Successfully deleted account \"${data.first}\"!",
+                message = "Successfully deleted account \"${data}\"!",
                 actionLabel = "Hide",
                 duration = SnackbarDuration.Long)
         } catch (e: Exception) {
             e.printStackTrace()
             snackbarHostState.showSnackbar(
-                message = "Failed to delete account \"${data.first}\"! ${e.message}",
+                message = "Failed to delete account \"${data}\"! ${e.message}",
                 actionLabel = "Hide",
                 duration = SnackbarDuration.Indefinite)
+        }
+    }
+
+    AnimatedVisibility(createAccount != null) {
+        Dialog(onDismissRequest = { createAccount = null }) {
+            Card(
+                modifier = Modifier.wrapContentSize().width(420.dp),
+                shape = RoundedCornerShape(16.dp),
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 24.dp)
+                ) {
+                    val data = createAccount ?: Pair("", "")
+                    Text(
+                        "Create New Account",
+                        fontSize = 28.sp,
+                        modifier = Modifier.padding(vertical = 16.dp)
+                    )
+                    // TODO: Could pull more things from the original login screen
+                    OutlinedTextField(
+                        value = data.first,
+                        onValueChange = { createAccount = Pair(it, data.second) },
+                        label = { Text("Username") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                        modifier = Modifier.fillMaxWidth())
+
+                    Spacer(Modifier.height(8.dp))
+
+                    PasswordTextField(
+                        value = data.second,
+                        onValueChange = { createAccount = Pair(data.first, it) },
+                        label = { Text("Password") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        keyboardActions = KeyboardActions(onDone = {}),
+                        modifier = Modifier.fillMaxWidth())
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        FilledTonalButton(onClick = { createAccount = null }) { Text("Cancel") }
+                        Button(onClick = ::onCreateAccount) { Text("Create") }
+                    }
+                }
+            }
         }
     }
 
@@ -222,6 +296,10 @@ fun AccountsTab() {
     }
 
     Column(Modifier.verticalScroll(rememberScrollState())) {
+        Button(modifier = Modifier.padding(8.dp), onClick = { createAccount = Pair("", "") }) {
+            Icon(Icons.Default.Add, "Create Account")
+            Text("Create Account")
+        }
         accounts.map { username ->
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Icon(

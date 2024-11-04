@@ -17,6 +17,8 @@ import xyz.retrixe.salezy.ui.screens.DashboardScreen
 import xyz.retrixe.salezy.ui.screens.LoginScreen
 import xyz.retrixe.salezy.ui.theme.AppTheme
 
+// TODO: We aren't using Spacer correctly (see usages of Boxes and Modifier.padding being used wrongly tbh)
+
 enum class Screens {
     LOGIN,
     DASHBOARD
