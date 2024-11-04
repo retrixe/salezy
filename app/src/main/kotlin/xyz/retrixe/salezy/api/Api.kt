@@ -35,10 +35,10 @@ object Api {
         }
     }
 
-    suspend fun login(username: String, password: String): String {
-        @Serializable data class LoginRequestBody(val username: String, val password: String)
-        @Serializable data class LoginResponseBody(val token: String)
+    @Serializable data class LoginRequestBody(val username: String, val password: String)
+    @Serializable data class LoginResponseBody(val token: String)
 
+    suspend fun login(username: String, password: String): String {
         val response = client.post("login") {
             setBody(LoginRequestBody(username, password))
         }
@@ -59,6 +59,35 @@ object Api {
     suspend fun postSettings(settings: RemoteSettings) {
         val response = client.post("settings") {
             setBody(settings)
+        }
+        if (!response.status.isSuccess()) {
+            throw ApiException(response.body<ErrorResponseBody>().error)
+        }
+    }
+
+    suspend fun getAccounts(): Sequence<String> {
+        val response = client.get("accounts")
+        if (!response.status.isSuccess()) {
+            throw ApiException(response.body<ErrorResponseBody>().error)
+        } else {
+            return response.body<Sequence<String>>()
+        }
+    }
+
+    @Serializable data class PatchAccountRequestBody(val username: String?, val password: String?)
+    suspend fun patchAccount(username: String, data: PatchAccountRequestBody) {
+        val response = client.patch("account") {
+            url.appendPathSegments(username)
+            setBody(data)
+        }
+        if (!response.status.isSuccess()) {
+            throw ApiException(response.body<ErrorResponseBody>().error)
+        }
+    }
+
+    suspend fun deleteAccount(username: String) {
+        val response = client.delete("account") {
+            url.appendPathSegments(username)
         }
         if (!response.status.isSuccess()) {
             throw ApiException(response.body<ErrorResponseBody>().error)
