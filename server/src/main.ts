@@ -14,12 +14,23 @@ import {
   postInventoryItemHandler,
 } from './endpoints/inventoryItems.js'
 import { getAssetHandler } from './endpoints/assets.js'
+import {
+  deleteAccountHandler,
+  getAccountsHandler,
+  patchAccountHandler,
+  postAccountHandler,
+} from './endpoints/accounts.js'
 
 export const server = fastify({ logger: true, bodyLimit: 25 * 1024 * 1024 })
 
 server.get('/', () => ({ hello: 'world' }))
 
 server.post('/login', postLoginHandler)
+
+server.get('/accounts', getAccountsHandler)
+server.post('/account', postAccountHandler)
+server.patch('/account/:username', patchAccountHandler)
+server.delete('/account/:username', deleteAccountHandler)
 
 server.get('/settings', getSettingsHandler)
 server.post('/settings', postSettingsHandler)

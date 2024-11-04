@@ -3,16 +3,15 @@ import jwt from 'jsonwebtoken'
 import { verify } from 'argon2'
 import { jwtSecret } from '../config.js'
 import sql from '../database/sql.js'
+import { validateUser } from '../database/entities/user.js'
 
 const postLoginHandler: RouteHandlerMethod = async (request, reply) => {
-  const { username, password } = (request.body ?? {}) as {
-    username?: string
-    password?: string
-  }
-  if (!username || !password) {
+  const { body } = request
+  if (!validateUser(body)) {
     reply.statusCode = 400
     return { error: 'Missing username and/or password!' }
   }
+  const { username, password } = body
   const [row]: [{ password: string }?] =
     await sql`SELECT password FROM users WHERE username = ${username} LIMIT 1;`
   if (!row || !(await verify(row.password, password))) {
